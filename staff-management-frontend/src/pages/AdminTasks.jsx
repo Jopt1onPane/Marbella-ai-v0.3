@@ -50,7 +50,6 @@ const AdminTasks = () => {
     end_date: '',
     max_points: '',
     category: '',
-    difficulty: 'medium',
     publisher_name: '管理员'
   });
 
@@ -95,7 +94,6 @@ const AdminTasks = () => {
         end_date: '',
         max_points: '',
         category: '',
-        difficulty: 'medium',
         publisher_name: '管理员'
       });
       setIsCreateDialogOpen(false);
@@ -166,15 +164,7 @@ const AdminTasks = () => {
     return <Badge className={`${color} border`}>{label}</Badge>;
   };
 
-  const getDifficultyBadge = (difficulty) => {
-    const config = {
-      easy: { label: '简单', color: 'bg-green-100 text-green-800 border-green-200' },
-      medium: { label: '中等', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-      hard: { label: '困难', color: 'bg-red-100 text-red-800 border-red-200' }
-    };
-    const { label, color } = config[difficulty] || config.medium;
-    return <Badge className={`${color} border`}>{label}</Badge>;
-  };
+
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('zh-CN', {
@@ -216,8 +206,8 @@ const AdminTasks = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="h-full bg-white">
+      <div className="p-8 space-y-8">
         {/* 页面标题和操作区域 */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>
@@ -319,19 +309,7 @@ const AdminTasks = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="difficulty" className="text-sm font-semibold text-gray-700">任务难度</Label>
-                    <Select value={newTask.difficulty} onValueChange={(value) => setNewTask({...newTask, difficulty: value})}>
-                      <SelectTrigger className="h-12 text-lg">
-                        <SelectValue placeholder="选择任务难度" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="easy">简单 (1-2天)</SelectItem>
-                        <SelectItem value="medium">中等 (3-5天)</SelectItem>
-                        <SelectItem value="hard">困难 (1周以上)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+
 
                   <DialogFooter className="pt-6">
                     <Button 
@@ -473,119 +451,109 @@ const AdminTasks = () => {
           </Alert>
         )}
 
-        {/* 任务列表 */}
-        <div className="space-y-6">
+        {/* 任务列表 - 表格形式 */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           {filteredTasks.length === 0 ? (
-            <Card className="bg-white shadow-sm border-0">
-              <CardContent className="text-center py-20">
-                <div className="p-4 bg-gray-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                  <FileText className="h-10 w-10 text-gray-400" />
-                </div>
-                <h3 className="text-2xl font-semibold text-gray-900 mb-3">暂无任务</h3>
-                <p className="text-gray-500 mb-8 text-lg">
-                  {searchTerm ? '没有找到匹配的任务' : '还没有创建任何任务'}
-                </p>
-                {!searchTerm && (
-                  <Button 
-                    onClick={() => setIsCreateDialogOpen(true)}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold"
-                  >
-                    <Plus className="mr-2 h-5 w-5" />
-                    创建第一个任务
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            <div className="text-center py-20">
+              <div className="p-4 bg-gray-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+                <FileText className="h-10 w-10 text-gray-400" />
+              </div>
+              <h3 className="text-2xl font-semibold text-gray-900 mb-3">暂无任务</h3>
+              <p className="text-gray-500 mb-8 text-lg">
+                {searchTerm ? '没有找到匹配的任务' : '还没有创建任何任务'}
+              </p>
+              {!searchTerm && (
+                <Button 
+                  onClick={() => setIsCreateDialogOpen(true)}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold"
+                >
+                  <Plus className="mr-2 h-5 w-5" />
+                  创建第一个任务
+                </Button>
+              )}
+            </div>
           ) : (
-            filteredTasks.map((task) => (
-              <Card key={task.id} className="bg-white shadow-sm border-0 hover:shadow-lg transition-all duration-200">
-                <CardContent className="p-8">
-                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-2xl font-bold text-gray-900 mb-3">{task.title}</h3>
-                          <div className="flex flex-wrap gap-3 mb-4">
-                            {getStatusBadge(task.status)}
-                            {getDifficultyBadge(task.difficulty)}
-                            {task.category && (
-                              <Badge variant="outline" className="border-gray-300 text-gray-700">
-                                {task.category}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <p className="text-gray-600 mb-6 text-lg leading-relaxed">{task.description}</p>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="flex items-center text-gray-600">
-                          <Calendar className="h-5 w-5 mr-3 text-blue-500" />
-                          <div>
-                            <p className="text-sm text-gray-500">开始日期</p>
-                            <p className="font-semibold">{formatDate(task.start_date)}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center text-gray-600">
-                          <Clock className="h-5 w-5 mr-3 text-yellow-500" />
-                          <div>
-                            <p className="text-sm text-gray-500">截止日期</p>
-                            <p className="font-semibold">{formatDate(task.end_date)}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center text-gray-600">
-                          <Award className="h-5 w-5 mr-3 text-green-500" />
-                          <div>
-                            <p className="text-sm text-gray-500">积分奖励</p>
-                            <p className="font-semibold text-lg">{task.max_points} 分</p>
-                          </div>
-                        </div>
-                        {task.assigned_user && (
-                          <div className="flex items-center text-gray-600">
-                            <User className="h-5 w-5 mr-3 text-purple-500" />
-                            <div>
-                              <p className="text-sm text-gray-500">执行人</p>
-                              <p className="font-semibold">{task.assigned_user}</p>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      任务信息
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      状态
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      时间
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      积分
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      操作
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredTasks.map((task) => (
+                    <tr key={task.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-6">
+                        <div className="flex items-start">
+                          <div className="flex-1">
+                            <div className="text-lg font-semibold text-gray-900 mb-1">{task.title}</div>
+                            <div className="text-sm text-gray-600 mb-2 line-clamp-2">{task.description}</div>
+                            <div className="flex items-center space-x-2">
+                              {task.category && (
+                                <Badge variant="outline" className="text-xs">
+                                  {task.category}
+                                </Badge>
+                              )}
+                              <span className="text-xs text-gray-500">发布人: {task.publisher_name}</span>
                             </div>
                           </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col gap-3">
-                      <Button
-                        variant="outline"
-                        size="lg"
-                        onClick={() => {
-                          setEditingTask(task);
-                          setIsEditDialogOpen(true);
-                        }}
-                        className="w-full lg:w-auto"
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        编辑任务
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="lg"
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 w-full lg:w-auto"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        删除任务
-                      </Button>
-                      {task.status === 'assigned' && (
-                        <Button variant="outline" size="lg" className="w-full lg:w-auto">
-                          <Eye className="h-4 w-4 mr-2" />
-                          查看进度
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                        </div>
+                      </td>
+                      <td className="px-6 py-6">
+                        {getStatusBadge(task.status)}
+                      </td>
+                      <td className="px-6 py-6">
+                        <div className="text-sm text-gray-900">
+                          <div>开始: {formatDate(task.start_date)}</div>
+                          <div>截止: {formatDate(task.end_date)}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-6">
+                        <div className="text-lg font-semibold text-green-600">{task.max_points} 分</div>
+                      </td>
+                      <td className="px-6 py-6">
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingTask(task);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            编辑
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteTask(task.id)}
+                            className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                          >
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            删除
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
@@ -676,19 +644,7 @@ const AdminTasks = () => {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <Label htmlFor="edit-difficulty" className="text-sm font-semibold text-gray-700">任务难度</Label>
-                  <Select value={editingTask.difficulty} onValueChange={(value) => setEditingTask({...editingTask, difficulty: value})}>
-                    <SelectTrigger className="h-12 text-lg">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="easy">简单 (1-2天)</SelectItem>
-                      <SelectItem value="medium">中等 (3-5天)</SelectItem>
-                      <SelectItem value="hard">困难 (1周以上)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
 
                 <DialogFooter className="pt-6">
                   <Button 

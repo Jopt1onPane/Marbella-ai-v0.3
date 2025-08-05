@@ -177,8 +177,8 @@ const MyTasks = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="h-full bg-white">
+      <div className="p-8 space-y-8">
         {/* 页面标题 */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>

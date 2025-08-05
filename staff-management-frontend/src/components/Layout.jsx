@@ -22,7 +22,9 @@ import {
   Menu,
   X,
   Bell,
-  Search
+  Search,
+  TrendingUp,
+  Target
 } from 'lucide-react';
 import { getUser, isAdmin, logout } from '@/lib/auth';
 
@@ -152,15 +154,16 @@ const Layout = ({ children }) => {
         </div>
       </header>
 
-      <div className="flex">
-        {/* 侧边栏 */}
+      {/* 主布局容器 - 左右分栏 */}
+      <div className="flex h-screen pt-16">
+        {/* 左侧仪表盘 - 固定宽度 */}
         <aside className={`
-          fixed inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
+          fixed inset-y-0 left-0 z-40 w-80 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}>
-          <div className="flex flex-col h-full pt-16 lg:pt-0">
+          <div className="flex flex-col h-full">
             {/* 导航菜单 */}
-            <nav className="flex-1 px-4 py-6 space-y-1">
+            <nav className="flex-1 px-6 py-8 space-y-2">
               {navigation.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
@@ -170,39 +173,71 @@ const Layout = ({ children }) => {
                     key={item.name}
                     to={item.href}
                     className={`
-                      group flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 border-2
+                      group flex items-center w-full px-4 py-4 text-base font-medium rounded-xl transition-all duration-200 border-2
                       ${active
-                        ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
+                        ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200 shadow-md'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent hover:border-gray-200'
                       }
                     `}
                     onClick={() => setSidebarOpen(false)}
                   >
-                    <Icon className={`mr-3 h-5 w-5 transition-colors ${
+                    <Icon className={`mr-4 h-6 w-6 transition-colors ${
                       active ? 'text-blue-700' : 'text-gray-400 group-hover:text-gray-600'
                     }`} />
-                    <span className="flex-1">{item.name}</span>
+                    <span className="flex-1 text-lg">{item.name}</span>
                     {active && (
-                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
                     )}
                   </Link>
                 );
               })}
             </nav>
 
-            {/* 底部信息 */}
-            <div className="p-4 border-t border-gray-200">
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
-                <div className="flex items-center">
-                  <Award className="h-5 w-5 text-blue-600 mr-2" />
-                  <div>
-                    <p className="text-sm font-medium text-blue-900">当前积分</p>
-                    <p className="text-lg font-bold text-blue-600">150</p>
+            {/* 底部统计信息 */}
+            <div className="p-6 border-t border-gray-200 space-y-4">
+              {/* 积分统计 */}
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <Award className="h-5 w-5 text-blue-600 mr-2" />
+                    <span className="text-sm font-medium text-blue-900">当前积分</span>
                   </div>
+                  <Badge variant="outline" className="text-blue-600 border-blue-300">
+                    活跃
+                  </Badge>
                 </div>
-                <div className="mt-2 text-xs text-blue-700">
-                  预估价值: ¥375
+                <div className="text-2xl font-bold text-blue-600 mb-1">150</div>
+                <div className="text-xs text-blue-700">预估价值: ¥375</div>
+              </div>
+
+              {/* 任务统计 */}
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <Target className="h-5 w-5 text-green-600 mr-2" />
+                    <span className="text-sm font-medium text-green-900">总任务数</span>
+                  </div>
+                  <Badge variant="outline" className="text-green-600 border-green-300">
+                    进行中
+                  </Badge>
                 </div>
+                <div className="text-2xl font-bold text-green-600 mb-1">0</div>
+                <div className="text-xs text-green-700">本月完成任务</div>
+              </div>
+
+              {/* 趋势统计 */}
+              <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-200">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <TrendingUp className="h-5 w-5 text-purple-600 mr-2" />
+                    <span className="text-sm font-medium text-purple-900">本月趋势</span>
+                  </div>
+                  <Badge variant="outline" className="text-purple-600 border-purple-300">
+                    +12%
+                  </Badge>
+                </div>
+                <div className="text-2xl font-bold text-purple-600 mb-1">¥2,450</div>
+                <div className="text-xs text-purple-700">预计月收入</div>
               </div>
             </div>
           </div>
@@ -216,12 +251,10 @@ const Layout = ({ children }) => {
           />
         )}
 
-        {/* 主内容区域 */}
-        <main className="flex-1 lg:ml-0 min-h-screen">
-          <div className="px-4 sm:px-6 lg:px-8 py-8">
-            <div className="max-w-7xl mx-auto">
-              {children}
-            </div>
+        {/* 右侧操作区域 - 自适应宽度 */}
+        <main className="flex-1 lg:ml-0 bg-gray-50 overflow-auto">
+          <div className="h-full">
+            {children}
           </div>
         </main>
       </div>
