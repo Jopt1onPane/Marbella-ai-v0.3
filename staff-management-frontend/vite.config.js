@@ -23,17 +23,6 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-button', '@radix-ui/react-input'],
-        },
-      },
-    },
-  },
-  define: {
-    'process.env.NODE_ENV': '"production"',
   },
 })
 
