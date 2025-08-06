@@ -26,16 +26,16 @@ export default defineConfig({
     minify: 'terser',
     rollupOptions: {
       output: {
-        entryFileNames: `assets/bundle-[hash].js`,
-        chunkFileNames: `assets/chunk-[hash].js`,
-        assetFileNames: `assets/[name]-[hash].[ext]`
+        entryFileNames: `assets/modern-ui-[hash].js`,
+        chunkFileNames: `assets/modern-chunk-[hash].js`,
+        assetFileNames: `assets/modern-[name]-[hash].[ext]`
       }
     }
   },
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __VERSION__: JSON.stringify('6.0.0'),
-    __FORCE_REBUILD__: JSON.stringify(true),
+    __VERSION__: JSON.stringify('7.0.0'),
+    __FORCE_REBUILD__: JSON.stringify(Date.now()),
   }
 })
 

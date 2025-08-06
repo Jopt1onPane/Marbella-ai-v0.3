@@ -1,8 +1,8 @@
 {
-  "buildCommand": "",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "installCommand": "",
-  "framework": null,
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": "vite",
   "rewrites": [
     {
       "source": "/(.*)",
@@ -16,6 +16,10 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "X-Modern-UI-Version",
+          "value": "7.0.0"
         }
       ]
     }

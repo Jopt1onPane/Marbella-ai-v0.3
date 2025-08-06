@@ -1,11 +1,12 @@
 {
   "name": "staff-management-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "7.0.0",
   "type": "module",
+  "description": "Modern UI Staff Management System Frontend v7.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "echo 'Using pre-built files'",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

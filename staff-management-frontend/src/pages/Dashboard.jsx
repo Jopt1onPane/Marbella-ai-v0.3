@@ -79,9 +79,12 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6">
+      {/* 现代化UI标识 */}
+      <div className="hidden">Modern UI Dashboard v7.0.0</div>
+      
       {/* 欢迎信息 */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-8 text-white">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-8 text-white shadow-xl">
         <div className="max-w-4xl">
           <h1 className="text-3xl font-bold mb-2">
             欢迎回来，{user?.username}！

@@ -58,6 +58,7 @@ const Login = () => {
           <Building2 className="mx-auto h-16 w-16 text-blue-600 mb-6" />
           <h1 className="text-4xl font-bold text-gray-900 mb-2">企业员工管理系统</h1>
           <p className="text-lg text-gray-600">Professional Staff Management Platform</p>
+          <div className="mt-2 text-xs text-blue-500 opacity-75">Modern UI v7.0</div>
         </div>
 
         <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/95">

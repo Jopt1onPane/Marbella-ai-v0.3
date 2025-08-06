@@ -136,6 +136,9 @@ const Tasks = () => {
   return (
     <div className="h-full bg-white">
       <div className="p-8 space-y-8">
+        {/* 现代化任务大厅标识 */}
+        <div className="hidden">Modern Task Hall v7.0.0</div>
+        
         {/* 页面标题 */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div>

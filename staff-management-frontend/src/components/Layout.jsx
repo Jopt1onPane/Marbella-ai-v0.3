@@ -253,8 +253,10 @@ const Layout = ({ children }) => {
 
         {/* 右侧操作区域 - 自适应宽度 */}
         <main className="flex-1 lg:ml-0 bg-gray-50 overflow-auto">
-          <div className="h-full">
-            {children}
+          <div className="h-full min-h-screen">
+            <div className="container mx-auto max-w-7xl">
+              {children}
+            </div>
           </div>
         </main>
       </div>
