@@ -32,11 +32,22 @@ const Login = () => {
 
     try {
       console.log('🔑 调试: 尝试登录', formData.username);
+      
+      // 首先测试JWT调试
+      try {
+        console.log('🔍 调试: 测试JWT生成');
+        const debugResponse = await authAPI.debugJWT(formData);
+        console.log('✅ 调试: JWT调试成功', debugResponse.data);
+      } catch (debugErr) {
+        console.error('❌ 调试: JWT调试失败', debugErr.response?.data);
+      }
+      
       const response = await authAPI.login(formData);
       const { access_token, user } = response.data;
       
       console.log('✅ 调试: 登录成功', user);
       console.log('🔑 调试: 获得Token', access_token ? 'Yes' : 'No');
+      console.log('🔑 调试: Token预览', access_token ? access_token.substring(0, 50) + '...' : 'No token');
       
       setToken(access_token);
       setUser(user);

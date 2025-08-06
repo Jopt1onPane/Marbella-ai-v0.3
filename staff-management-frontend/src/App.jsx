@@ -4,6 +4,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import Dashboard from '@/pages/Dashboard';
+import JWTTest from '@/pages/JWTTest';
 import Tasks from '@/pages/Tasks';
 import MyTasks from '@/pages/MyTasks';
 import AdminTasks from '@/pages/AdminTasks';
@@ -30,6 +31,9 @@ function App() {
               isAuthenticated() ? <Navigate to="/" replace /> : <Register />
             } 
           />
+          
+          {/* JWT测试页面 */}
+          <Route path="/jwt-test" element={<JWTTest />} />
           
           {/* 受保护的路由 */}
           <Route path="/" element={

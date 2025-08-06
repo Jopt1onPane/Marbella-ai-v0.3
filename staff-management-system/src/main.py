@@ -20,8 +20,16 @@ app = Flask(__name__)
 
 # 配置
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'asdf#FGSgvasgf$5$WGT')
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-string')  # JWT密钥
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'asdf#FGSgvasgf$5$WGT')  # 使用相同的密钥
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)  # Token过期时间
+app.config['JWT_ALGORITHM'] = 'HS256'  # 明确指定算法
+app.config['JWT_DECODE_ALGORITHMS'] = ['HS256']  # 明确指定解码算法
+
+# 调试JWT配置
+print(f"🔍 调试: SECRET_KEY = {app.config['SECRET_KEY'][:10]}...")
+print(f"🔍 调试: JWT_SECRET_KEY = {app.config['JWT_SECRET_KEY'][:10]}...")
+print(f"🔍 调试: JWT_ALGORITHM = {app.config['JWT_ALGORITHM']}")
+print(f"🔍 调试: JWT_DECODE_ALGORITHMS = {app.config['JWT_DECODE_ALGORITHMS']}")
 
 # 数据库配置
 DATABASE_URL = os.getenv('DATABASE_URL')
@@ -178,7 +186,8 @@ def expired_token_callback(jwt_header, jwt_payload):
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
-    return jsonify({'error': 'Token无效，请重新登录'}), 401
+    print(f"❌ 调试: 无效Token错误: {error}")
+    return jsonify({'error': f'Token无效: {str(error)}'}), 401
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):

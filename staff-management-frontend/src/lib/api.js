@@ -16,8 +16,11 @@ api.interceptors.request.use(
     const token = localStorage.getItem('access_token');
     console.log('🔍 调试: 发送请求', config.url, 'Token:', token ? 'exists' : 'missing');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      // 确保token格式正确
+      const cleanToken = token.trim();
+      config.headers.Authorization = `Bearer ${cleanToken}`;
       console.log('🔑 调试: 已添加Authorization头');
+      console.log('🔑 调试: Authorization值', `Bearer ${cleanToken.substring(0, 20)}...`);
     }
     return config;
   },
@@ -48,7 +51,8 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   logout: () => api.post('/auth/logout'),
   getProfile: () => api.get('/auth/profile'),
-  testToken: () => api.get('/auth/test-token')  // 新增：测试token
+  testToken: () => api.get('/auth/test-token'),  // 新增：测试token
+  debugJWT: (data) => api.post('/auth/debug-jwt', data)  // 新增：调试JWT
 };
 
 // 任务相关API
