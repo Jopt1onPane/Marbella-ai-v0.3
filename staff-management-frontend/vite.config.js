@@ -25,14 +25,16 @@ export default defineConfig({
           sourcemap: false,
           rollupOptions: {
             output: {
-              entryFileNames: `assets/[name]-[hash].js`,
-              chunkFileNames: `assets/[name]-[hash].js`,
+              entryFileNames: `assets/main-[hash].js`,
+              chunkFileNames: `assets/chunk-[hash].js`,
               assetFileNames: `assets/[name]-[hash].[ext]`
             }
           }
         },
-  define: {
-    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-  }
+          define: {
+          __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+          __VERSION__: JSON.stringify('3.0.0'),
+          __FORCE_REBUILD__: JSON.stringify(true),
+        }
 })
 

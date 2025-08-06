@@ -56,7 +56,22 @@ jwt = JWTManager(app)
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
+
+# 专门处理OPTIONS请求
+@app.route('/api/auth/login', methods=['OPTIONS'])
+@app.route('/api/auth/register', methods=['OPTIONS'])
+@app.route('/api/tasks', methods=['OPTIONS'])
+@app.route('/api/submissions', methods=['OPTIONS'])
+@app.route('/api/points', methods=['OPTIONS'])
+@app.route('/api/upload', methods=['OPTIONS'])
+def handle_options():
+    response = jsonify({'status': 'ok'})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response
