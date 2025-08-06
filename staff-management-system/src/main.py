@@ -52,14 +52,14 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 db.init_app(app)
 jwt = JWTManager(app)
 
-# CORS 配置
-cors_origins = os.getenv('CORS_ORIGINS', '*')
-if cors_origins != '*':
-    cors_origins = cors_origins.split(',')
-else:
-    cors_origins = ['*']
-
-CORS(app, origins=cors_origins, supports_credentials=True, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+# 强制CORS配置 - 允许所有来源
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
 
 # 注册蓝图
 app.register_blueprint(user_bp, url_prefix='/api')
@@ -69,10 +69,40 @@ app.register_blueprint(submissions_bp, url_prefix='/api')
 app.register_blueprint(points_bp, url_prefix='/api')
 app.register_blueprint(upload_bp, url_prefix='/api')
 
-# 创建数据库表
+# 创建数据库表和初始账户
 with app.app_context():
     db.create_all()
     print("数据库表创建完成")
+    
+    # 自动创建初始账户
+    from src.models.user import User
+    
+    # 创建管理员账户
+    admin = User.query.filter_by(username='admin').first()
+    if not admin:
+        admin = User(
+            username='admin',
+            email='admin@company.com',
+            role='admin'
+        )
+        admin.set_password('admin123')
+        db.session.add(admin)
+        print("管理员账户已创建: admin / admin123")
+    
+    # 创建测试员工账户
+    employee = User.query.filter_by(username='employee').first()
+    if not employee:
+        employee = User(
+            username='employee',
+            email='employee@company.com',
+            role='user'
+        )
+        employee.set_password('employee123')
+        db.session.add(employee)
+        print("员工账户已创建: employee / employee123")
+    
+    db.session.commit()
+    print("初始账户创建完成")
 
 @app.route('/')
 def health_check():
