@@ -27,8 +27,17 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)  # Token过期时�
 DATABASE_URL = os.getenv('DATABASE_URL')
 if not DATABASE_URL:
     # 如果没有设置DATABASE_URL，使用SQLite
-    # 使用/tmp目录确保有写入权限
-    db_path = os.path.join('/tmp', 'app.db')
+    if os.name == 'nt':  # Windows系统
+        # Windows环境，使用当前目录
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        db_dir = os.path.join(base_dir, 'database')
+        if not os.path.exists(db_dir):
+            os.makedirs(db_dir)
+        db_path = os.path.join(db_dir, 'app.db')
+    else:
+        # Linux/Unix环境（如Render），使用/tmp目录
+        db_path = os.path.join('/tmp', 'app.db')
+    
     DATABASE_URL = f"sqlite:///{db_path}"
 elif DATABASE_URL.startswith('postgres://'):
     DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
