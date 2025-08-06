@@ -3,12 +3,9 @@ services:
     name: staff-management-backend
     env: python
     plan: free
-    pythonVersion: "3.10.12"
     buildCommand: cd staff-management-system && pip install -r requirements.txt
     startCommand: cd staff-management-system && gunicorn src.main:app --bind 0.0.0.0:$PORT
     envVars:
-      - key: FLASK_ENV
-        value: production
       - key: FLASK_APP
         value: src.main
       - key: JWT_SECRET_KEY
