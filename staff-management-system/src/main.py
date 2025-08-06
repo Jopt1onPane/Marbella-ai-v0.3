@@ -56,7 +56,10 @@ jwt = JWTManager(app)
 cors_origins = os.getenv('CORS_ORIGINS', '*')
 if cors_origins != '*':
     cors_origins = cors_origins.split(',')
-CORS(app, origins=cors_origins)  # 允许跨域请求
+else:
+    cors_origins = ['*']
+
+CORS(app, origins=cors_origins, supports_credentials=True, methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
 
 # 注册蓝图
 app.register_blueprint(user_bp, url_prefix='/api')
