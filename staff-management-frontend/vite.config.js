@@ -35,7 +35,7 @@ export default defineConfig({
   },
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __VERSION__: JSON.stringify('8.0.0'),
+    __VERSION__: JSON.stringify('8.1.0'),
     __FORCE_REBUILD__: JSON.stringify(Date.now()),
     __UI_MODE__: JSON.stringify('MODERN_UI_FIXED'),
   }
