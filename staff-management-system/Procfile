@@ -1,1 +1,1 @@
-web: cd staff-management-system && python -m gunicorn src.main:app --bind 0.0.0.0:$PORT --workers 1 --timeout 60 
+web: cd staff-management-system && gunicorn src.main:app --bind 0.0.0.0:$PORT --workers 1 --timeout 60 
