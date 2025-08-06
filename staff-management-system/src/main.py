@@ -27,7 +27,9 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)  # Token过期时�
 DATABASE_URL = os.getenv('DATABASE_URL')
 if not DATABASE_URL:
     # 如果没有设置DATABASE_URL，使用SQLite
-    DATABASE_URL = f"sqlite:///{os.path.join(os.path.dirname(__file__), 'database', 'app.db')}"
+    # 使用/tmp目录确保有写入权限
+    db_path = os.path.join('/tmp', 'app.db')
+    DATABASE_URL = f"sqlite:///{db_path}"
 elif DATABASE_URL.startswith('postgres://'):
     DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
 
@@ -58,21 +60,7 @@ app.register_blueprint(upload_bp, url_prefix='/api')
 # 创建数据库表
 with app.app_context():
     db.create_all()
-    
-    # 创建默认管理员账户（仅在开发环境）
-    if os.getenv('FLASK_ENV') != 'production':
-        from src.models.user import User
-        admin = User.query.filter_by(username='admin').first()
-        if not admin:
-            admin = User(
-                username='admin',
-                email='admin@company.com',
-                role='admin'
-            )
-            admin.set_password('admin123')
-            db.session.add(admin)
-            db.session.commit()
-            print("默认管理员账户已创建: admin / admin123")
+    print("数据库表创建完成")
 
 @app.route('/')
 def health_check():
