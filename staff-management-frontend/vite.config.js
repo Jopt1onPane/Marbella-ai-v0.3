@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -34,8 +35,9 @@ export default defineConfig({
   },
   define: {
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-    __VERSION__: JSON.stringify('7.0.0'),
+    __VERSION__: JSON.stringify('8.0.0'),
     __FORCE_REBUILD__: JSON.stringify(Date.now()),
+    __UI_MODE__: JSON.stringify('MODERN_UI_FIXED'),
   }
 })
 
