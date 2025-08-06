@@ -47,115 +47,108 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-50">
       {/* 顶部装饰 */}
       <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-blue-800"></div>
       
-      <div className="flex min-h-screen">
-        {/* 左侧信息面板 */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 p-12 text-white relative overflow-hidden">
-          {/* 背景装饰 */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-24 -translate-x-24"></div>
+      {/* 居中的登录容器 */}
+      <div className="w-full max-w-md px-6">
+        {/* 系统标题 */}
+        <div className="text-center mb-8">
+          <Building2 className="mx-auto h-16 w-16 text-blue-600 mb-6" />
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">企业员工管理系统</h1>
+          <p className="text-lg text-gray-600">Professional Staff Management Platform</p>
+        </div>
+
+        <Card className="shadow-2xl border-0 backdrop-blur-sm bg-white/95">
+          <CardHeader className="space-y-1 pb-8 pt-8">
+            <CardTitle className="text-3xl font-bold text-center flex items-center justify-center">
+              <LogIn className="mr-3 h-8 w-8 text-blue-600" />
+              系统登录
+            </CardTitle>
+            <CardDescription className="text-center text-base text-gray-600 mt-2">
+              请输入您的账户信息
+            </CardDescription>
+          </CardHeader>
           
-          <div className="relative z-10 flex flex-col justify-center max-w-md">
-            <div className="mb-8">
-              <Building2 className="h-12 w-12 mb-4" />
-              <h1 className="text-4xl font-bold mb-4">员工管理系统</h1>
+          <CardContent className="space-y-6 px-8 pb-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <Alert variant="destructive" className="border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-800 text-center">{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-3">
+                <Label htmlFor="username" className="text-base font-medium text-gray-700">
+                  用户账户
+                </Label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="请输入用户名或邮箱"
+                  className="h-14 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="password" className="text-base font-medium text-gray-700">
+                  登录密码
+                </Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="请输入登录密码"
+                  className="h-14 text-base border-2 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-14 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg rounded-lg shadow-lg hover:shadow-xl transition-all"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+                    正在登录...
+                  </>
+                ) : (
+                  '立即登录'
+                )}
+              </Button>
+            </form>
+
+            <div className="text-center pt-4">
+              <p className="text-base text-gray-600">
+                还没有账户？{' '}
+                <Link
+                  to="/register"
+                  className="font-medium text-blue-600 hover:text-blue-500 hover:underline text-base"
+                >
+                  立即注册
+                </Link>
+              </p>
             </div>
-          </div>
-        </div>
 
-        {/* 右侧登录表单 */}
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="w-full max-w-md space-y-8">
-            {/* 移动端标题 */}
-            <div className="text-center lg:hidden">
-              <Building2 className="mx-auto h-12 w-12 text-blue-600 mb-4" />
-              <h2 className="text-3xl font-bold text-gray-900">员工管理系统</h2>
+            {/* 用户类型说明 */}
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h3 className="text-sm font-medium text-blue-800 mb-2 text-center">账户类型说明</h3>
+              <div className="text-xs text-blue-700 space-y-1">
+                <p><strong>管理员账户：</strong>发布任务、审核提交、管理员工、设置积分</p>
+                <p><strong>员工账户：</strong>查看任务、接受任务、提交作业、查看积分</p>
+              </div>
             </div>
-
-            <Card className="shadow-xl border-0">
-              <CardHeader className="space-y-1 pb-6">
-                <CardTitle className="text-2xl font-bold text-center flex items-center justify-center">
-                  <LogIn className="mr-2 h-6 w-6 text-blue-600" />
-                  登录
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {error && (
-                    <Alert variant="destructive" className="border-red-200 bg-red-50">
-                      <AlertDescription className="text-red-800">{error}</AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label htmlFor="username" className="text-sm font-medium text-gray-700">
-                      用户名或邮箱
-                    </Label>
-                    <Input
-                      id="username"
-                      name="username"
-                      type="text"
-                      required
-                      value={formData.username}
-                      onChange={handleChange}
-                      placeholder="请输入用户名或邮箱"
-                      className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                      密码
-                    </Label>
-                    <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="请输入密码"
-                      className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-base"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        登录中...
-                      </>
-                    ) : (
-                      '登录'
-                    )}
-                  </Button>
-                </form>
-
-                <div className="text-center">
-                  <p className="text-sm text-gray-600">
-                    还没有账户？{' '}
-                    <Link
-                      to="/register"
-                      className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
-                    >
-                      立即注册
-                    </Link>
-                  </p>
-                </div>
-
-
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
