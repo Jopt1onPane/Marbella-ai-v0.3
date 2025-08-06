@@ -20,21 +20,22 @@ export default defineConfig({
       },
     },
   },
-          build: {
-          outDir: 'dist',
-          sourcemap: false,
-          rollupOptions: {
-            output: {
-              entryFileNames: `assets/main-[hash].js`,
-              chunkFileNames: `assets/chunk-[hash].js`,
-              assetFileNames: `assets/[name]-[hash].[ext]`
-            }
-          }
-        },
-          define: {
-          __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
-          __VERSION__: JSON.stringify('3.0.0'),
-          __FORCE_REBUILD__: JSON.stringify(true),
-        }
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/bundle-[hash].js`,
+        chunkFileNames: `assets/chunk-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`
+      }
+    }
+  },
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    __VERSION__: JSON.stringify('6.0.0'),
+    __FORCE_REBUILD__: JSON.stringify(true),
+  }
 })
 

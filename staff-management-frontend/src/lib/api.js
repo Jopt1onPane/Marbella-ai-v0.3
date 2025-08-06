@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 创建axios实例
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://staff-management-backend-gzyj.onrender.com',
+  baseURL: (import.meta.env.VITE_API_BASE_URL || 'https://staff-management-backend-gzyj.onrender.com') + '/api',
   timeout: 10000,
 });
 
