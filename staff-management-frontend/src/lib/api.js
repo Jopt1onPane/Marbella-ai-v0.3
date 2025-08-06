@@ -3,7 +3,11 @@ import axios from 'axios';
 // 创建axios实例
 const api = axios.create({
   baseURL: (import.meta.env.VITE_API_BASE_URL || 'https://staff-management-backend-gzyj.onrender.com') + '/api',
-  timeout: 10000,
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: false, // 避免CORS凭据问题
 });
 
 // 请求拦截器 - 添加认证token

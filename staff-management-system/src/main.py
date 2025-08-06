@@ -52,29 +52,13 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 db.init_app(app)
 jwt = JWTManager(app)
 
-# 强制CORS配置 - 允许所有来源
-@app.after_request
-def after_request(response):
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
-
-# 专门处理OPTIONS请求
-@app.route('/api/auth/login', methods=['OPTIONS'])
-@app.route('/api/auth/register', methods=['OPTIONS'])
-@app.route('/api/tasks', methods=['OPTIONS'])
-@app.route('/api/submissions', methods=['OPTIONS'])
-@app.route('/api/points', methods=['OPTIONS'])
-@app.route('/api/upload', methods=['OPTIONS'])
-def handle_options():
-    response = jsonify({'status': 'ok'})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
+# 配置CORS - 使用Flask-CORS扩展，避免多重头冲突
+CORS(app, 
+     origins=['*'],  # 允许所有来源
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
+     supports_credentials=False  # 避免与通配符Origin冲突
+)
 
 # 注册蓝图
 app.register_blueprint(user_bp, url_prefix='/api')
@@ -84,40 +68,37 @@ app.register_blueprint(submissions_bp, url_prefix='/api')
 app.register_blueprint(points_bp, url_prefix='/api')
 app.register_blueprint(upload_bp, url_prefix='/api')
 
-# 创建数据库表和初始账户
-with app.app_context():
-    db.create_all()
-    print("数据库表创建完成")
-    
-    # 自动创建初始账户
-    from src.models.user import User
-    
-    # 创建管理员账户
-    admin = User.query.filter_by(username='admin').first()
-    if not admin:
-        admin = User(
-            username='admin',
-            email='admin@company.com',
-            role='admin'
-        )
-        admin.set_password('admin123')
-        db.session.add(admin)
-        print("管理员账户已创建: admin / admin123")
-    
-    # 创建测试员工账户
-    employee = User.query.filter_by(username='employee').first()
-    if not employee:
-        employee = User(
-            username='employee',
-            email='employee@company.com',
-            role='user'
-        )
-        employee.set_password('employee123')
-        db.session.add(employee)
-        print("员工账户已创建: employee / employee123")
-    
-    db.session.commit()
-    print("初始账户创建完成")
+# 数据库初始化
+def init_database():
+    """初始化数据库表和管理员账户"""
+    try:
+        with app.app_context():
+            db.create_all()
+            print("✅ 数据库表创建完成")
+            
+            # 自动创建初始账户
+            from src.models.user import User
+            
+            # 创建唯一的管理员账户 admin/admin123
+            admin = User.query.filter_by(username='admin').first()
+            if not admin:
+                admin = User(
+                    username='admin',
+                    email='admin@company.com',
+                    role='admin'
+                )
+                admin.set_password('admin123')
+                db.session.add(admin)
+                print("👑 管理员账户已创建: admin / admin123")
+            
+            db.session.commit()
+            print("💾 初始账户创建完成")
+            
+    except Exception as e:
+        print(f"❌ 数据库初始化失败: {e}")
+
+# 在应用启动时初始化数据库
+init_database()
 
 @app.route('/')
 def health_check():

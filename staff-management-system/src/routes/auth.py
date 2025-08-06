@@ -20,11 +20,16 @@ def register():
         if User.query.filter_by(email=data['email']).first():
             return jsonify({'error': '邮箱已被注册'}), 400
         
-        # 创建新用户
+        # 创建新用户 - 强制安全规则：只有admin可以是管理员
+        role = 'user'  # 所有注册用户都是普通用户
+        if data['username'] == 'admin':
+            # admin用户名保留给系统管理员
+            return jsonify({'error': 'admin用户名为系统保留，请选择其他用户名'}), 400
+            
         user = User(
             username=data['username'],
             email=data['email'],
-            role=data.get('role', 'user')  # 默认为普通用户
+            role=role  # 强制为普通用户
         )
         user.set_password(data['password'])
         
