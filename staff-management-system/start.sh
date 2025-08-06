@@ -7,4 +7,4 @@ cd /opt/render/project/src/staff-management-system
 pip install -r requirements.txt
 
 # 启动应用（优化配置）
-exec python -m gunicorn src.main:app --bind 0.0.0.0:$PORT --workers 1 --timeout 60 --preload --max-requests 1000
+exec python -m gunicorn src.main:app --bind 0.0.0.0:$PORT --workers 1 --timeout 60
