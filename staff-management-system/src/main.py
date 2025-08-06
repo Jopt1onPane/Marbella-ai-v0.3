@@ -24,6 +24,7 @@ app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'asdf#FGSgvasgf$5$WGT
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)  # Token过期时间
 app.config['JWT_ALGORITHM'] = 'HS256'  # 明确指定算法
 app.config['JWT_DECODE_ALGORITHMS'] = ['HS256']  # 明确指定解码算法
+app.config['JWT_IDENTITY_CLAIM'] = 'sub'  # 明确指定identity claim
 
 # 调试JWT配置
 print(f"🔍 调试: SECRET_KEY = {app.config['SECRET_KEY'][:10]}...")
@@ -65,6 +66,17 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 # 初始化扩展
 db.init_app(app)
 jwt = JWTManager(app)
+
+# JWT identity loader - 确保正确处理用户ID
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    """将用户对象转换为JWT identity"""
+    if isinstance(user, int):
+        return user  # 如果已经是整数ID，直接返回
+    elif hasattr(user, 'id'):
+        return user.id  # 如果是用户对象，返回ID
+    else:
+        return str(user)  # 其他情况转换为字符串
 
 # JWT错误处理
 @jwt.expired_token_loader

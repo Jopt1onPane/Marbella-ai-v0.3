@@ -79,7 +79,13 @@ def test_token():
     """测试JWT token是否有效"""
     try:
         user_id = get_jwt_identity()
-        print(f"🔍 调试: JWT验证成功，用户ID: {user_id}")
+        print(f"🔍 调试: JWT验证成功，用户ID: {user_id}, 类型: {type(user_id)}")
+        
+        # 获取完整的JWT信息
+        from flask_jwt_extended import get_jwt
+        jwt_data = get_jwt()
+        print(f"🔍 调试: 完整JWT数据: {jwt_data}")
+        
         user = User.query.get(user_id)
         
         if not user:
@@ -90,11 +96,15 @@ def test_token():
         return jsonify({
             'message': 'Token验证成功',
             'user_id': user_id,
+            'user_id_type': str(type(user_id)),
+            'jwt_data': jwt_data,
             'user': user.to_dict()
         }), 200
         
     except Exception as e:
         print(f"❌ 调试: Token验证失败: {e}")
+        import traceback
+        print(f"❌ 调试: 错误堆栈: {traceback.format_exc()}")
         return jsonify({'error': f'Token验证失败: {str(e)}'}), 500
 
 @auth_bp.route('/debug-jwt', methods=['POST'])
@@ -119,14 +129,19 @@ def debug_jwt():
         # 生成token
         from flask import current_app
         import jwt
+        import uuid
         from datetime import datetime, timedelta
         
-        # 手动生成token进行测试
+        # 手动生成token进行测试 - 使用与Flask-JWT-Extended相同的格式
+        from datetime import timezone
+        now = datetime.now(timezone.utc)
         payload = {
             'sub': user.id,
-            'iat': datetime.utcnow(),
-            'exp': datetime.utcnow() + timedelta(hours=24),
-            'type': 'access'
+            'iat': now,
+            'exp': now + timedelta(hours=24),
+            'type': 'access',
+            'fresh': False,
+            'jti': str(uuid.uuid4())
         }
         
         secret_key = current_app.config['JWT_SECRET_KEY']
