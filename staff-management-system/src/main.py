@@ -55,19 +55,20 @@ app.register_blueprint(upload_bp, url_prefix='/api')
 with app.app_context():
     db.create_all()
     
-    # 创建默认管理员账户
-    from src.models.user import User
-    admin = User.query.filter_by(username='admin').first()
-    if not admin:
-        admin = User(
-            username='admin',
-            email='admin@company.com',
-            role='admin'
-        )
-        admin.set_password('admin123')
-        db.session.add(admin)
-        db.session.commit()
-        print("默认管理员账户已创建: admin / admin123")
+    # 创建默认管理员账户（仅在开发环境）
+    if os.getenv('FLASK_ENV') != 'production':
+        from src.models.user import User
+        admin = User.query.filter_by(username='admin').first()
+        if not admin:
+            admin = User(
+                username='admin',
+                email='admin@company.com',
+                role='admin'
+            )
+            admin.set_password('admin123')
+            db.session.add(admin)
+            db.session.commit()
+            print("默认管理员账户已创建: admin / admin123")
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
