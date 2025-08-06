@@ -14,8 +14,10 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
+    console.log('🔍 调试: 发送请求', config.url, 'Token:', token ? 'exists' : 'missing');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('🔑 调试: 已添加Authorization头');
     }
     return config;
   },
@@ -46,6 +48,7 @@ export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   logout: () => api.post('/auth/logout'),
   getProfile: () => api.get('/auth/profile'),
+  testToken: () => api.get('/auth/test-token')  // 新增：测试token
 };
 
 // 任务相关API

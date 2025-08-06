@@ -73,6 +73,30 @@ def login():
     except Exception as e:
         return jsonify({'error': f'登录失败: {str(e)}'}), 500
 
+@auth_bp.route('/test-token', methods=['GET'])
+@jwt_required()
+def test_token():
+    """测试JWT token是否有效"""
+    try:
+        user_id = get_jwt_identity()
+        print(f"🔍 调试: JWT验证成功，用户ID: {user_id}")
+        user = User.query.get(user_id)
+        
+        if not user:
+            print(f"❌ 调试: 找不到用户 ID: {user_id}")
+            return jsonify({'error': '用户不存在'}), 404
+        
+        print(f"✅ 调试: 找到用户 {user.username}, 角色: {user.role}")
+        return jsonify({
+            'message': 'Token验证成功',
+            'user_id': user_id,
+            'user': user.to_dict()
+        }), 200
+        
+    except Exception as e:
+        print(f"❌ 调试: Token验证失败: {e}")
+        return jsonify({'error': f'Token验证失败: {str(e)}'}), 500
+
 @auth_bp.route('/profile', methods=['GET'])
 @jwt_required()
 def get_profile():

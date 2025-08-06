@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { getUser, isAdmin } from '@/lib/auth';
 import { Link } from 'react-router-dom';
-import { tasksAPI, pointsAPI, submissionsAPI, userAPI } from '@/lib/api';
+import { tasksAPI, pointsAPI, submissionsAPI, userAPI, authAPI } from '@/lib/api';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -33,6 +33,31 @@ const Dashboard = () => {
   useEffect(() => {
     const loadStats = async () => {
       setLoading(true);
+      
+      // 首先测试token是否有效
+      console.log('🔍 调试: 开始加载仪表盘数据');
+      const token = localStorage.getItem('access_token');
+      console.log('🔑 调试: 当前token存在:', !!token);
+      
+      if (!token) {
+        console.error('❌ 调试: 没有找到token，跳转登录页');
+        window.location.href = '/login';
+        return;
+      }
+      
+      // 测试token有效性
+      try {
+        console.log('🔍 调试: 测试token有效性');
+        const tokenTest = await authAPI.testToken();
+        console.log('✅ 调试: Token验证成功', tokenTest.data);
+      } catch (tokenError) {
+        console.error('❌ 调试: Token验证失败', tokenError);
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
+      }
+      
       try {
         const newStats = {
           totalTasks: 0,

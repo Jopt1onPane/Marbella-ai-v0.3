@@ -136,16 +136,31 @@ def db_health_check():
         user_count = User.query.count()
         admin_count = User.query.filter_by(role='admin').count()
         
+        # 检查管理员账户
+        admin_user = User.query.filter_by(username='admin').first()
+        admin_exists = bool(admin_user)
+        
+        # 获取所有用户列表（调试用）
+        all_users = User.query.all()
+        user_list = [{'username': u.username, 'role': u.role, 'id': u.id} for u in all_users]
+        
+        db_url = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+        db_type = 'PostgreSQL' if 'postgresql' in db_url else 'SQLite' if 'sqlite' in db_url else 'Unknown'
+        
         return jsonify({
             'database_status': 'connected',
+            'database_type': db_type,
             'total_users': user_count,
             'admin_users': admin_count,
-            'database_url': app.config.get('SQLALCHEMY_DATABASE_URI', '').split('@')[-1] if '@' in app.config.get('SQLALCHEMY_DATABASE_URI', '') else 'local'
+            'admin_account_exists': admin_exists,
+            'all_users': user_list,
+            'database_url_partial': db_url.split('@')[-1] if '@' in db_url else 'local'
         }), 200
     except Exception as e:
         return jsonify({
             'database_status': 'error',
-            'error': str(e)
+            'error': str(e),
+            'database_url': app.config.get('SQLALCHEMY_DATABASE_URI', 'not_set')
         }), 500
 
 # 错误处理

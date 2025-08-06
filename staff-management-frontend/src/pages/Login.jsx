@@ -31,15 +31,24 @@ const Login = () => {
     setError('');
 
     try {
+      console.log('🔑 调试: 尝试登录', formData.username);
       const response = await authAPI.login(formData);
       const { access_token, user } = response.data;
+      
+      console.log('✅ 调试: 登录成功', user);
+      console.log('🔑 调试: 获得Token', access_token ? 'Yes' : 'No');
       
       setToken(access_token);
       setUser(user);
       
+      // 验证token是否保存成功
+      const savedToken = localStorage.getItem('access_token');
+      console.log('💾 调试: Token已保存', savedToken ? 'Yes' : 'No');
+      
       // 强制刷新页面确保状态更新
       window.location.href = '/';
     } catch (err) {
+      console.error('❌ 调试: 登录失败', err.response?.data);
       setError(err.response?.data?.error || '登录失败，请重试');
     } finally {
       setLoading(false);
