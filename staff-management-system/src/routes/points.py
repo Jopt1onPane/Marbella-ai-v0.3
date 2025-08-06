@@ -7,6 +7,37 @@ from functools import wraps
 
 points_bp = Blueprint('points', __name__)
 
+@points_bp.route('/points/my', methods=['GET'])
+@jwt_required()
+def get_my_points():
+    """获取当前用户的积分"""
+    try:
+        user_id = get_jwt_identity()
+        print(f"🔍 调试: 获取我的积分，用户ID: {user_id}")
+        
+        if not user_id:
+            return jsonify({'error': '无效的用户认证'}), 401
+            
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': '用户不存在'}), 404
+        
+        # 获取用户的积分记录
+        point_records = PointRecord.query.filter_by(user_id=user_id).order_by(PointRecord.created_at.desc()).all()
+        
+        # 计算总积分
+        total_points = sum(record.points for record in point_records if record.type == 'earned')
+        
+        return jsonify({
+            'user': user.to_dict(),
+            'total_points': total_points,
+            'point_records': [record.to_dict() for record in point_records]
+        }), 200
+        
+    except Exception as e:
+        print(f"❌ 调试: 获取积分失败: {e}")
+        return jsonify({'error': f'获取积分失败: {str(e)}'}), 500
+
 def require_admin(f):
     """装饰器：要求管理员权限"""
     @wraps(f)

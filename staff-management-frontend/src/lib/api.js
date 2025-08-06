@@ -67,8 +67,18 @@ export const submissionsAPI = {
   getMySubmissions: () => api.get('/submissions/my'),
 };
 
+// 用户相关API
+export const userAPI = {
+  getUsers: () => api.get('/users'),
+  getUserStats: () => api.get('/users/stats'),
+  getUser: (id) => api.get(`/users/${id}`),
+  updateUser: (id, data) => api.put(`/users/${id}`, data),
+  deleteUser: (id) => api.delete(`/users/${id}`),
+};
+
 // 积分相关API
 export const pointsAPI = {
+  getMyPoints: () => api.get('/points/my'),  // 新增：获取当前用户积分
   getUserPoints: (userId, params) => api.get(`/points/user/${userId}`, { params }),
   getMonthlyPoints: (params) => api.get('/points/monthly', { params }),
   setMonthlySettings: (data) => api.post('/monthly/settings', data),

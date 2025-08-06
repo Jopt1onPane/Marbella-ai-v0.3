@@ -2,7 +2,7 @@ services:
   - type: web
     name: staff-management-backend
     env: python
-    region: oregon
+    region: singapore
     plan: starter
     buildCommand: "pip install -r requirements.txt"
     startCommand: "python init_db.py && gunicorn --bind 0.0.0.0:$PORT src.main:app"
@@ -18,9 +18,10 @@ services:
       - key: JWT_SECRET_KEY
         generateValue: true
 
-databases:
-  - name: staff-management-db
-    databaseName: staff_management
-    user: staff_admin
-    region: oregon
-    plan: starter
+# 注意：数据库已经存在，不需要重新创建
+# databases:
+#   - name: staff-management-db
+#     databaseName: staff_management_4yt3
+#     user: staff_user
+#     region: singapore
+#     plan: starter

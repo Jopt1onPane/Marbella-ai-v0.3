@@ -23,7 +23,18 @@ def require_admin(f):
 def get_tasks():
     try:
         user_id = get_jwt_identity()
+        print(f"🔍 调试: 获取任务列表，用户ID: {user_id}")
+        
+        if not user_id:
+            print("❌ 调试: 无法获取用户ID")
+            return jsonify({'error': '无效的用户认证'}), 401
+            
         user = User.query.get(user_id)
+        if not user:
+            print(f"❌ 调试: 找不到用户 ID: {user_id}")
+            return jsonify({'error': '用户不存在'}), 404
+            
+        print(f"✅ 调试: 找到用户 {user.username}, 角色: {user.role}")
         
         # 获取查询参数
         status = request.args.get('status')

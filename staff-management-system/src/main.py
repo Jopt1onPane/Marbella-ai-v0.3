@@ -25,7 +25,10 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)  # Token过期时�
 
 # 数据库配置
 DATABASE_URL = os.getenv('DATABASE_URL')
+print(f"🔍 调试: DATABASE_URL = {DATABASE_URL}")
+
 if not DATABASE_URL:
+    print("⚠️  警告: 未设置DATABASE_URL环境变量，使用SQLite")
     # 如果没有设置DATABASE_URL，使用SQLite
     if os.name == 'nt':  # Windows系统
         # Windows环境，使用当前目录
@@ -41,6 +44,9 @@ if not DATABASE_URL:
     DATABASE_URL = f"sqlite:///{db_path}"
 elif DATABASE_URL.startswith('postgres://'):
     DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    print("✅ 使用PostgreSQL数据库")
+else:
+    print("✅ 使用外部数据库")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -51,6 +57,19 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 # 初始化扩展
 db.init_app(app)
 jwt = JWTManager(app)
+
+# JWT错误处理
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return jsonify({'error': 'Token已过期，请重新登录'}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    return jsonify({'error': 'Invalid token'}), 401
+
+@jwt.unauthorized_loader
+def missing_token_callback(error):
+    return jsonify({'error': '需要访问令牌'}), 401
 
 # 配置CORS - 使用Flask-CORS扩展，避免多重头冲突
 CORS(app, 
@@ -107,6 +126,27 @@ def health_check():
         'status': 'running',
         'version': '1.0.0'
     })
+
+@app.route('/health/db')
+def db_health_check():
+    """数据库健康检查"""
+    try:
+        # 测试数据库连接
+        from src.models.user import User
+        user_count = User.query.count()
+        admin_count = User.query.filter_by(role='admin').count()
+        
+        return jsonify({
+            'database_status': 'connected',
+            'total_users': user_count,
+            'admin_users': admin_count,
+            'database_url': app.config.get('SQLALCHEMY_DATABASE_URI', '').split('@')[-1] if '@' in app.config.get('SQLALCHEMY_DATABASE_URI', '') else 'local'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'database_status': 'error',
+            'error': str(e)
+        }), 500
 
 # 错误处理
 @app.errorhandler(404)

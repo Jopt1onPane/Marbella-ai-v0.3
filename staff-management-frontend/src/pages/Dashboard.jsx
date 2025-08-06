@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { getUser, isAdmin } from '@/lib/auth';
 import { Link } from 'react-router-dom';
+import { tasksAPI, pointsAPI, submissionsAPI, userAPI } from '@/lib/api';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -28,18 +29,66 @@ const Dashboard = () => {
   const user = getUser();
   const isAdminUser = isAdmin();
 
-  // 简化统计数据，避免API调用错误
+  // 加载真实统计数据
   useEffect(() => {
-    // 模拟数据，避免API错误
-    setStats({
-      totalTasks: 5,
-      myTasks: 2,
-      myPoints: 150,
-      pendingSubmissions: 3,
-      totalUsers: 8,
-      monthlyPoints: 1200,
-    });
-  }, []);
+    const loadStats = async () => {
+      setLoading(true);
+      try {
+        const newStats = {
+          totalTasks: 0,
+          myTasks: 0,
+          myPoints: 0,
+          pendingSubmissions: 0,
+          totalUsers: 0,
+          monthlyPoints: 0,
+        };
+
+        // 获取任务数据
+        try {
+          const tasksRes = await tasksAPI.getTasks({});
+          const allTasks = tasksRes.data.tasks || [];
+          newStats.totalTasks = allTasks.length;
+          
+          if (isAdminUser) {
+            // 管理员：计算待审核提交数
+            newStats.pendingSubmissions = allTasks.filter(task => task.status === 'submitted').length;
+          } else {
+            // 普通用户：计算自己的任务数
+            const myTasksRes = await tasksAPI.getTasks({ assigned_to_me: true });
+            newStats.myTasks = (myTasksRes.data.tasks || []).length;
+          }
+        } catch (error) {
+          console.error('获取任务数据失败:', error);
+        }
+
+        // 获取积分数据
+        try {
+          const pointsRes = await pointsAPI.getMyPoints();
+          newStats.myPoints = pointsRes.data.total_points || 0;
+        } catch (error) {
+          console.error('获取积分数据失败:', error);
+        }
+
+        // 管理员获取用户统计
+        if (isAdminUser) {
+          try {
+            const userStatsRes = await userAPI.getUserStats();
+            newStats.totalUsers = userStatsRes.data.total_users || 0;
+          } catch (error) {
+            console.error('获取用户统计失败:', error);
+          }
+        }
+
+        setStats(newStats);
+      } catch (error) {
+        console.error('加载统计数据失败:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
+  }, [isAdminUser]);
 
   const StatCard = ({ title, value, description, icon: Icon, color = "blue" }) => (
     <Card className="hover:shadow-lg transition-shadow">
@@ -50,7 +99,9 @@ const Dashboard = () => {
         <Icon className={`h-4 w-4 text-${color}-600`} />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-gray-900">{value}</div>
+        <div className="text-2xl font-bold text-gray-900">
+          {loading ? "..." : value}
+        </div>
         {description && (
           <p className="text-xs text-gray-500 mt-1">
             {description}
@@ -161,8 +212,8 @@ const Dashboard = () => {
             />
             <StatCard
               title="本月收益"
-              value="¥375"
-              description="预估收益金额"
+              value={loading ? "加载中..." : `¥${(stats.myPoints * 2.5).toFixed(2)}`}
+              description="基于积分预估收益"
               icon={TrendingUp}
               color="purple"
             />
