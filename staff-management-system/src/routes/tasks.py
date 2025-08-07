@@ -65,7 +65,7 @@ def get_tasks():
         if user.role == 'user':
             if assigned_to_me:
                 # 用户查看自己的任务
-                query = query.filter_by(assigned_to=user_id)
+                query = query.filter_by(assigned_to=user_id_int)
             else:
                 # 用户查看可接受的任务
                 query = query.filter_by(status='open')

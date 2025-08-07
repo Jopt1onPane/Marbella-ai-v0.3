@@ -12,7 +12,7 @@ points_bp = Blueprint('points', __name__)
 def get_my_points():
     """获取当前用户的积分"""
     try:
-                user_id = get_jwt_identity()
+        user_id = get_jwt_identity()
         print(f"🔍 调试: 获取我的积分，用户ID: {user_id}, 类型: {type(user_id)}")
 
         if not user_id:
