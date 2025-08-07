@@ -85,19 +85,27 @@ class TaskSubmission(db.Model):
     review_comments = db.Column(db.Text)
 
     def to_dict(self):
+        import json
+        try:
+            files = json.loads(self.file_paths) if self.file_paths else []
+        except:
+            files = []
+            
         return {
             'id': self.id,
             'task_id': self.task_id,
             'user_id': self.user_id,
             'description': self.description,
-            'file_paths': self.file_paths,
+            'files': files,  # 解析后的文件数组
+            'file_paths': self.file_paths,  # 保留原始JSON字符串
             'submitted_at': self.submitted_at.isoformat() if self.submitted_at else None,
             'reviewed_at': self.reviewed_at.isoformat() if self.reviewed_at else None,
             'awarded_points': self.awarded_points,
             'review_status': self.review_status,
             'review_comments': self.review_comments,
             'task_title': self.task.title if self.task else None,
-            'user_name': self.user.username if self.user else None
+            'user_name': self.user.username if self.user else None,
+            'max_points': self.task.max_points if self.task else 0  # 添加最大积分
         }
 
 class Notification(db.Model):

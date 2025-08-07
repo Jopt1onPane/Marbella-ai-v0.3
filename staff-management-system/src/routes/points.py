@@ -169,6 +169,23 @@ def get_monthly_points():
     except Exception as e:
         return jsonify({'error': f'获取月度积分统计失败: {str(e)}'}), 500
 
+@points_bp.route('/monthly/settings', methods=['GET'])
+@jwt_required()
+@require_admin
+def get_monthly_settings():
+    try:
+        year = request.args.get('year', datetime.now().year, type=int)
+        month = request.args.get('month', datetime.now().month, type=int)
+        
+        monthly_setting = MonthlySetting.query.filter_by(year=year, month=month).first()
+        
+        return jsonify({
+            'monthly_setting': monthly_setting.to_dict() if monthly_setting else None
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': f'获取月度设置失败: {str(e)}'}), 500
+
 @points_bp.route('/monthly/settings', methods=['POST'])
 @jwt_required()
 @require_admin

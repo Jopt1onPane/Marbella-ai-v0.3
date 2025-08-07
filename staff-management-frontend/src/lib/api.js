@@ -97,6 +97,7 @@ export const pointsAPI = {
   getMyPoints: () => api.get('/points/my'),  // 新增：获取当前用户积分
   getUserPoints: (userId, params) => api.get(`/points/user/${userId}`, { params }),
   getMonthlyPoints: (params) => api.get('/points/monthly', { params }),
+  getMonthlySettings: (params) => api.get('/monthly/settings', { params }),
   setMonthlySettings: (data) => api.post('/monthly/settings', data),
   calculateMonthlySalary: (params) => api.get('/monthly/salary', { params }),
   finalizeMonthlySettings: (data) => api.post('/monthly/finalize', data),

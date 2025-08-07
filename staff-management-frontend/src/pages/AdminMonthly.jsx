@@ -16,6 +16,7 @@ import {
   CheckCircle,
   Save
 } from 'lucide-react';
+import { pointsAPI } from '@/lib/api';
 
 const AdminMonthly = () => {
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,13 @@ const AdminMonthly = () => {
   });
 
   useEffect(() => {
+    // 加载月度设置
+    loadMonthlySettings();
+    // 加载月度积分统计
+    loadMonthlyStats();
+  }, []);
+
+  useEffect(() => {
     // 计算积分价值
     if (monthlyData.total_profit && monthlyData.profit_percentage && monthlyData.total_points_distributed > 0) {
       const profitAmount = parseFloat(monthlyData.total_profit);
@@ -61,6 +69,41 @@ const AdminMonthly = () => {
     }
   }, [monthlyData.total_profit, monthlyData.profit_percentage, monthlyData.total_points_distributed]);
 
+  const loadMonthlySettings = async () => {
+    try {
+      const [year, month] = monthlyData.month.split('-');
+      const response = await pointsAPI.getMonthlySettings({ year, month });
+      
+      if (response.data.monthly_setting) {
+        const setting = response.data.monthly_setting;
+        setMonthlyData(prev => ({
+          ...prev,
+          total_profit: setting.total_profit?.toString() || '',
+          profit_percentage: setting.profit_percentage?.toString() || '25',
+          point_value: setting.points_value || 0
+        }));
+      }
+    } catch (error) {
+      console.error('加载月度设置失败:', error);
+    }
+  };
+
+  const loadMonthlyStats = async () => {
+    try {
+      const [year, month] = monthlyData.month.split('-');
+      const response = await pointsAPI.getMonthlyPoints({ year, month });
+      
+      if (response.data.total_points !== undefined) {
+        setMonthlyData(prev => ({
+          ...prev,
+          total_points_distributed: response.data.total_points
+        }));
+      }
+    } catch (error) {
+      console.error('加载月度统计失败:', error);
+    }
+  };
+
   const handleSaveSettings = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -68,11 +111,21 @@ const AdminMonthly = () => {
     setSuccess('');
     
     try {
-      // TODO: 实际API调用
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const [year, month] = monthlyData.month.split('-');
+      const data = {
+        year: parseInt(year),
+        month: parseInt(month),
+        total_profit: parseFloat(monthlyData.total_profit),
+        profit_percentage: parseFloat(monthlyData.profit_percentage)
+      };
+      
+      await pointsAPI.setMonthlySettings(data);
       setSuccess('月度设置已保存成功！');
+      
+      // 重新加载设置
+      await loadMonthlySettings();
     } catch (err) {
-      setError('保存失败，请重试');
+      setError(err.response?.data?.error || '保存失败，请重试');
     } finally {
       setSubmitting(false);
     }
@@ -83,15 +136,8 @@ const AdminMonthly = () => {
     setError('');
     
     try {
-      // TODO: 从API获取本月积分统计
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // 这里应该从API获取真实数据
-      setMonthlyData(prev => ({
-        ...prev,
-        total_points_distributed: 0 // 实际应该从API获取
-      }));
-      
+      await loadMonthlyStats();
+      setSuccess('积分统计已更新！');
     } catch (err) {
       setError('获取积分统计失败');
     } finally {
