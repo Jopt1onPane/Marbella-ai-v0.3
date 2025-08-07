@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DraggableDialog, DraggableDialogContent, DraggableDialogDescription, DraggableDialogFooter, DraggableDialogHeader, DraggableDialogTitle } from '@/components/ui/draggable-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Users, 
@@ -351,19 +352,19 @@ const AdminUsers = () => {
       </div>
 
       {/* 用户详情对话框 */}
-      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3">
+      <DraggableDialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DraggableDialogContent className="max-w-4xl">
+          <DraggableDialogHeader>
+            <DraggableDialogTitle className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
                 {selectedUser?.username.charAt(0).toUpperCase()}
               </div>
               {selectedUser?.username} - 详细信息
-            </DialogTitle>
-            <DialogDescription>
+            </DraggableDialogTitle>
+            <DraggableDialogDescription>
               查看用户的详细统计信息和任务历史
-            </DialogDescription>
-          </DialogHeader>
+            </DraggableDialogDescription>
+          </DraggableDialogHeader>
           
           {selectedUser && (
             <div className="space-y-6">
@@ -460,13 +461,8 @@ const AdminUsers = () => {
             </div>
           )}
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>
-              关闭
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </DraggableDialogContent>
+      </DraggableDialog>
     </div>
   );
 };

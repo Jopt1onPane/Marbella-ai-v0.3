@@ -51,7 +51,8 @@ const DraggableDialogContent = React.forwardRef(({ className, children, ...props
   }, []);
 
   const handleMouseDown = (e) => {
-    if (e.target.closest('[data-dialog-close]') || e.target.closest('button')) {
+    // 允许点击任意地方拖拽，但排除按钮和关闭按钮
+    if (e.target.closest('button') || e.target.closest('[data-dialog-close]') || e.target.closest('input') || e.target.closest('textarea') || e.target.closest('select')) {
       return;
     }
     
@@ -61,6 +62,9 @@ const DraggableDialogContent = React.forwardRef(({ className, children, ...props
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     });
+    
+    // 阻止默认行为
+    e.preventDefault();
   };
 
   const handleMouseMove = (e) => {
@@ -77,6 +81,9 @@ const DraggableDialogContent = React.forwardRef(({ className, children, ...props
       x: Math.max(0, Math.min(newX, maxX)),
       y: Math.max(0, Math.min(newY, maxY))
     });
+    
+    // 阻止默认行为
+    e.preventDefault();
   };
 
   const handleMouseUp = () => {
@@ -85,11 +92,16 @@ const DraggableDialogContent = React.forwardRef(({ className, children, ...props
 
   React.useEffect(() => {
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mousemove', handleMouseMove, { passive: false });
       document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'grabbing';
+      
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.body.style.userSelect = '';
+        document.body.style.cursor = '';
       };
     }
   }, [isDragging, dragOffset]);

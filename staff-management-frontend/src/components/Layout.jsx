@@ -91,6 +91,21 @@ const Layout = ({ children }) => {
     };
 
     fetchStats();
+    
+    // 监听刷新统计数据事件
+    const handleRefreshStats = () => {
+      fetchStats();
+    };
+    
+    window.addEventListener('refreshStats', handleRefreshStats);
+    
+    // 每10秒刷新一次统计数据，确保实时更新
+    const interval = setInterval(fetchStats, 10000);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('refreshStats', handleRefreshStats);
+    };
   }, [isAdminUser]);
 
   // 获取通知数据
