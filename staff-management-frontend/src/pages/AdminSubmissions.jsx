@@ -99,7 +99,7 @@ const AdminSubmissions = () => {
     const matchesSearch = submission.task_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          submission.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          submission.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || submission.status === filterStatus;
+    const matchesFilter = filterStatus === 'all' || submission.review_status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
@@ -184,7 +184,7 @@ const AdminSubmissions = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">待审核</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {submissions.filter(s => s.status === 'pending').length}
+                  {submissions.filter(s => s.review_status === 'pending').length}
                 </p>
               </div>
             </div>
@@ -200,7 +200,7 @@ const AdminSubmissions = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">已通过</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {submissions.filter(s => s.status === 'approved').length}
+                  {submissions.filter(s => s.review_status === 'approved').length}
                 </p>
               </div>
             </div>
@@ -216,7 +216,7 @@ const AdminSubmissions = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">已拒绝</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {submissions.filter(s => s.status === 'rejected').length}
+                  {submissions.filter(s => s.review_status === 'rejected').length}
                 </p>
               </div>
             </div>
@@ -304,7 +304,7 @@ const AdminSubmissions = () => {
                           {submission.task_title}
                         </h3>
                         <div className="flex flex-wrap gap-2 mb-3">
-                          {getStatusBadge(submission.status)}
+                          {getStatusBadge(submission.review_status)}
                           <Badge variant="outline" className="flex items-center gap-1">
                             <User className="h-3 w-3" />
                             {submission.user_name}
@@ -360,13 +360,13 @@ const AdminSubmissions = () => {
                     )}
                     
                     {/* 反馈信息 */}
-                    {submission.feedback && (
+                    {submission.review_comments && (
                       <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                         <div className="flex items-start">
                           <MessageSquare className="h-5 w-5 text-blue-600 mt-0.5 mr-2" />
                           <div>
                             <h4 className="font-medium text-blue-900 mb-1">审核反馈:</h4>
-                            <p className="text-blue-800 text-sm">{submission.feedback}</p>
+                            <p className="text-blue-800 text-sm">{submission.review_comments}</p>
                           </div>
                         </div>
                       </div>
@@ -375,7 +375,7 @@ const AdminSubmissions = () => {
                   
                   {/* 右侧操作 */}
                   <div className="flex flex-col gap-2 lg:w-48">
-                    {submission.status === 'pending' ? (
+                    {submission.review_status === 'pending' ? (
                       <Button
                         onClick={() => {
                           setSelectedSubmission(submission);
@@ -397,9 +397,9 @@ const AdminSubmissions = () => {
                         onClick={() => {
                           setSelectedSubmission(submission);
                           setReviewData({
-                            status: submission.status,
+                            status: submission.review_status || 'pending',
                             awarded_points: submission.awarded_points?.toString() || '0',
-                            feedback: submission.feedback || ''
+                            feedback: submission.review_comments || ''
                           });
                           setIsReviewDialogOpen(true);
                         }}
@@ -422,7 +422,7 @@ const AdminSubmissions = () => {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {selectedSubmission?.status === 'pending' ? '审核提交' : '查看审核详情'}
+              {selectedSubmission?.review_status === 'pending' ? '审核提交' : '查看审核详情'}
             </DialogTitle>
             <DialogDescription>
               任务: {selectedSubmission?.task_title} | 提交人: {selectedSubmission?.user_name}
@@ -468,7 +468,7 @@ const AdminSubmissions = () => {
                   <Select 
                     value={reviewData.status} 
                     onValueChange={(value) => setReviewData({...reviewData, status: value})}
-                    disabled={selectedSubmission.status !== 'pending'}
+                    disabled={selectedSubmission.review_status !== 'pending'}
                   >
                     <SelectTrigger>
                       <SelectValue />
@@ -491,7 +491,7 @@ const AdminSubmissions = () => {
                     onChange={(e) => setReviewData({...reviewData, awarded_points: e.target.value})}
                     min="0"
                     max={selectedSubmission.max_points}
-                    disabled={selectedSubmission.status !== 'pending' || reviewData.status === 'rejected'}
+                    disabled={selectedSubmission.review_status !== 'pending' || reviewData.status === 'rejected'}
                     required
                   />
                 </div>
@@ -505,15 +505,15 @@ const AdminSubmissions = () => {
                   onChange={(e) => setReviewData({...reviewData, feedback: e.target.value})}
                   placeholder="请提供审核意见和建议..."
                   rows={4}
-                  disabled={selectedSubmission.status !== 'pending'}
+                  disabled={selectedSubmission.review_status !== 'pending'}
                 />
               </div>
               
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsReviewDialogOpen(false)}>
-                  {selectedSubmission.status === 'pending' ? '取消' : '关闭'}
+                  {selectedSubmission.review_status === 'pending' ? '取消' : '关闭'}
                 </Button>
-                {selectedSubmission.status === 'pending' && (
+                {selectedSubmission.review_status === 'pending' && (
                   <Button type="submit" disabled={submitting}>
                     {submitting ? '提交中...' : '提交审核'}
                   </Button>
