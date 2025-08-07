@@ -11,7 +11,17 @@ def require_admin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+            
+        user = User.query.get(user_id_int)
         if not user or user.role != 'admin':
             return jsonify({'error': '需要管理员权限'}), 403
         return f(*args, **kwargs)
@@ -44,14 +54,24 @@ def get_submissions():
 def get_submission(submission_id):
     try:
         user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+            
+        user = User.query.get(user_id_int)
         
         submission = TaskSubmission.query.get(submission_id)
         if not submission:
             return jsonify({'error': '提交记录不存在'}), 404
         
         # 检查权限：管理员或提交者本人可以查看
-        if user.role != 'admin' and submission.user_id != user_id:
+        if user.role != 'admin' and submission.user_id != user_id_int:
             return jsonify({'error': '没有权限查看此提交'}), 403
         
         return jsonify({
@@ -132,7 +152,16 @@ def get_my_submissions():
     try:
         user_id = get_jwt_identity()
         
-        submissions = TaskSubmission.query.filter_by(user_id=user_id)\
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+        
+        submissions = TaskSubmission.query.filter_by(user_id=user_id_int)\
             .order_by(TaskSubmission.submitted_at.desc()).all()
         
         return jsonify({

@@ -12,7 +12,17 @@ def require_admin(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         user_id = get_jwt_identity()
-        user = User.query.get(user_id)
+        
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+            
+        user = User.query.get(user_id_int)
         if not user or user.role != 'admin':
             return jsonify({'error': '需要管理员权限'}), 403
         return f(*args, **kwargs)
@@ -22,7 +32,7 @@ def require_admin(f):
 @jwt_required()
 def get_tasks():
     try:
-                user_id = get_jwt_identity()
+        user_id = get_jwt_identity()
         print(f"🔍 调试: 获取任务列表，用户ID: {user_id}, 类型: {type(user_id)}")
 
         if not user_id:
@@ -97,6 +107,15 @@ def create_task():
         
         user_id = get_jwt_identity()
         
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+        
         task = Task(
             title=data['title'],
             description=data['description'],
@@ -104,7 +123,7 @@ def create_task():
             start_date=start_date,
             end_date=end_date,
             max_points=data['max_points'],
-            created_by=user_id
+            created_by=user_id_int
         )
         
         db.session.add(task)
@@ -183,6 +202,16 @@ def update_task(task_id):
 def assign_task(task_id):
     try:
         user_id = get_jwt_identity()
+        
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+            
         task = Task.query.get(task_id)
         
         if not task:
@@ -198,7 +227,7 @@ def assign_task(task_id):
         if task.end_date < date.today():
             return jsonify({'error': '任务已过期'}), 400
         
-        task.assigned_to = user_id
+        task.assigned_to = user_id_int
         task.status = 'assigned'
         
         db.session.commit()
@@ -217,12 +246,22 @@ def assign_task(task_id):
 def submit_task(task_id):
     try:
         user_id = get_jwt_identity()
+        
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+            
         task = Task.query.get(task_id)
         
         if not task:
             return jsonify({'error': '任务不存在'}), 404
         
-        if task.assigned_to != user_id:
+        if task.assigned_to != user_id_int:
             return jsonify({'error': '您没有权限提交此任务'}), 403
         
         if task.status not in ['assigned', 'submitted']:
@@ -233,7 +272,7 @@ def submit_task(task_id):
         # 检查是否已有提交记录
         existing_submission = TaskSubmission.query.filter_by(
             task_id=task_id, 
-            user_id=user_id
+            user_id=user_id_int
         ).first()
         
         if existing_submission:
@@ -247,7 +286,7 @@ def submit_task(task_id):
             # 创建新提交
             submission = TaskSubmission(
                 task_id=task_id,
-                user_id=user_id,
+                user_id=user_id_int,
                 description=data.get('description', ''),
                 file_paths=json.dumps(data.get('file_paths', []))
             )
