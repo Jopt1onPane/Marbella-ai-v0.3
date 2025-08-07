@@ -5,9 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Plus, 
   Edit, 
@@ -16,18 +16,14 @@ import {
   Clock, 
   Award, 
   User,
-  Search,
-  Filter,
+  FileText,
   CheckCircle,
   AlertCircle,
-  Users,
-  Eye,
-  FileText,
-  TrendingUp,
-  Target,
   Zap,
-  Briefcase,
-  DollarSign
+  Target,
+  TrendingUp,
+  Users,
+  Activity
 } from 'lucide-react';
 import { tasksAPI } from '@/lib/api';
 
@@ -140,38 +136,23 @@ const AdminTasks = () => {
       setSuccess('任务删除成功！');
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      console.error('删除任务失败:', err);
       setError(err.response?.data?.error || '删除任务失败，请重试');
     }
   };
 
-  const filteredTasks = tasks.filter(task => {
-    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || task.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
-
   const getStatusBadge = (status) => {
     const config = {
-      open: { label: '待接受', color: 'bg-blue-100 text-blue-800 border-blue-200' },
-      assigned: { label: '进行中', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-      submitted: { label: '待审核', color: 'bg-purple-100 text-purple-800 border-purple-200' },
-      completed: { label: '已完成', color: 'bg-green-100 text-green-800 border-green-200' },
-      cancelled: { label: '已取消', color: 'bg-red-100 text-red-800 border-red-200' }
+      open: { label: '可接受', color: 'bg-green-100 text-green-800 border-green-200' },
+      assigned: { label: '已分配', color: 'bg-blue-100 text-blue-800 border-blue-200' },
+      submitted: { label: '待审核', color: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+      completed: { label: '已完成', color: 'bg-purple-100 text-purple-800 border-purple-200' }
     };
     const { label, color } = config[status] || config.open;
     return <Badge className={`${color} border`}>{label}</Badge>;
   };
 
-
-
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('zh-CN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return new Date(dateString).toLocaleDateString('zh-CN');
   };
 
   const getStatusCount = (status) => {
@@ -182,31 +163,23 @@ const AdminTasks = () => {
     return tasks.reduce((sum, task) => sum + (task.max_points || 0), 0);
   };
 
+  const filteredTasks = tasks.filter(task => {
+    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || task.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
-        <div className="max-w-7xl mx-auto space-y-8">
-          <div className="flex justify-between items-center">
-            <div className="h-8 bg-gray-200 rounded w-64 animate-pulse"></div>
-            <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="animate-pulse">
-                <CardContent className="p-6">
-                  <div className="h-16 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="h-full bg-white">
+    <div className="min-h-screen bg-gray-50">
       <div className="p-8 space-y-8">
         {/* 页面标题和操作区域 */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
@@ -309,8 +282,6 @@ const AdminTasks = () => {
                     </div>
                   </div>
 
-
-
                   <DialogFooter className="pt-6">
                     <Button 
                       type="button" 
@@ -378,7 +349,7 @@ const AdminTasks = () => {
             <CardContent className="p-6">
               <div className="flex items-center">
                 <div className="p-3 bg-purple-500 rounded-xl">
-                  <Eye className="h-8 w-8 text-white" />
+                  <CheckCircle className="h-8 w-8 text-white" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-purple-600">待审核</p>
@@ -392,48 +363,16 @@ const AdminTasks = () => {
             <CardContent className="p-6">
               <div className="flex items-center">
                 <div className="p-3 bg-green-500 rounded-xl">
-                  <DollarSign className="h-8 w-8 text-white" />
+                  <Award className="h-8 w-8 text-white" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-green-600">总积分</p>
-                  <p className="text-3xl font-bold text-green-900">{getTotalPoints()}</p>
+                  <p className="text-3xl font-bold text-green-900">¥{getTotalPoints()}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* 搜索和筛选区域 */}
-        <Card className="bg-white shadow-sm border-0">
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  placeholder="搜索任务标题或描述..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-12 h-12 text-lg"
-                />
-              </div>
-              <div className="flex gap-4">
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-48 h-12">
-                    <Filter className="mr-2 h-5 w-5" />
-                    <SelectValue placeholder="筛选状态" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">全部状态</SelectItem>
-                    <SelectItem value="open">待接受</SelectItem>
-                    <SelectItem value="assigned">进行中</SelectItem>
-                    <SelectItem value="submitted">待审核</SelectItem>
-                    <SelectItem value="completed">已完成</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* 成功提示 */}
         {success && (
@@ -451,230 +390,246 @@ const AdminTasks = () => {
           </Alert>
         )}
 
-        {/* 任务列表 - 表格形式 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          {filteredTasks.length === 0 ? (
-            <div className="text-center py-20">
-              <div className="p-4 bg-gray-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-                <FileText className="h-10 w-10 text-gray-400" />
-              </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-3">暂无任务</h3>
-              <p className="text-gray-500 mb-8 text-lg">
-                {searchTerm ? '没有找到匹配的任务' : '还没有创建任何任务'}
-              </p>
-              {!searchTerm && (
-                <Button 
-                  onClick={() => setIsCreateDialogOpen(true)}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold"
-                >
-                  <Plus className="mr-2 h-5 w-5" />
-                  创建第一个任务
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      任务信息
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      状态
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      时间
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      积分
-                    </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      操作
-                    </th>
+        {/* 搜索和筛选 */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <Input
+              placeholder="搜索任务标题或描述..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-12 text-lg"
+            />
+          </div>
+          <div className="w-full sm:w-48">
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="h-12 text-lg">
+                <SelectValue placeholder="全部状态" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="open">可接受</SelectItem>
+                <SelectItem value="assigned">已分配</SelectItem>
+                <SelectItem value="submitted">待审核</SelectItem>
+                <SelectItem value="completed">已完成</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* 任务列表 */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    任务信息
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    状态
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    时间
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    积分
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    操作
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredTasks.map((task) => (
+                  <tr key={task.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div>
+                        <div className="text-lg font-semibold text-gray-900">{task.title}</div>
+                        <div className="text-sm text-gray-500 mt-1">{task.description}</div>
+                        <div className="flex items-center mt-2 text-xs text-gray-400">
+                          <User className="h-3 w-3 mr-1" />
+                          {task.publisher_name}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {getStatusBadge(task.status)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-900">
+                        <div className="flex items-center">
+                          <Calendar className="h-3 w-3 mr-1 text-gray-400" />
+                          {formatDate(task.start_date)}
+                        </div>
+                        <div className="flex items-center mt-1">
+                          <Clock className="h-3 w-3 mr-1 text-gray-400" />
+                          {formatDate(task.end_date)}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center">
+                        <Award className="h-4 w-4 text-yellow-500 mr-1" />
+                        <span className="text-lg font-semibold text-gray-900">{task.max_points}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setEditingTask(task);
+                            setIsEditDialogOpen(true);
+                          }}
+                          className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="text-red-600 border-red-200 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredTasks.map((task) => (
-                    <tr key={task.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-6">
-                        <div className="flex items-start">
-                          <div className="flex-1">
-                            <div className="text-lg font-semibold text-gray-900 mb-1">{task.title}</div>
-                            <div className="text-sm text-gray-600 mb-2 line-clamp-2">{task.description}</div>
-                            <div className="flex items-center space-x-2">
-                              {task.category && (
-                                <Badge variant="outline" className="text-xs">
-                                  {task.category}
-                                </Badge>
-                              )}
-                              <span className="text-xs text-gray-500">发布人: {task.publisher_name}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-6">
-                        {getStatusBadge(task.status)}
-                      </td>
-                      <td className="px-6 py-6">
-                        <div className="text-sm text-gray-900">
-                          <div>开始: {formatDate(task.start_date)}</div>
-                          <div>截止: {formatDate(task.end_date)}</div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-6">
-                        <div className="text-lg font-semibold text-green-600">{task.max_points} 分</div>
-                      </td>
-                      <td className="px-6 py-6">
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingTask(task);
-                              setIsEditDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4 mr-1" />
-                            编辑
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteTask(task.id)}
-                            className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            删除
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {filteredTasks.length === 0 && (
+            <div className="text-center py-12">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">暂无任务</h3>
+              <p className="text-gray-500">还没有创建任何任务</p>
             </div>
           )}
         </div>
+      </div>
 
-        {/* 编辑任务对话框 */}
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">编辑任务</DialogTitle>
-            </DialogHeader>
-            {editingTask && (
-              <form onSubmit={handleEditTask} className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="edit-title" className="text-sm font-semibold text-gray-700">任务标题 *</Label>
-                    <Input
-                      id="edit-title"
-                      value={editingTask.title}
-                      onChange={(e) => setEditingTask({...editingTask, title: e.target.value})}
-                      className="h-12 text-lg"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <Label htmlFor="edit-category" className="text-sm font-semibold text-gray-700">任务分类</Label>
-                    <Select value={editingTask.category} onValueChange={(value) => setEditingTask({...editingTask, category: value})}>
-                      <SelectTrigger className="h-12 text-lg">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="设计">设计</SelectItem>
-                        <SelectItem value="开发">开发</SelectItem>
-                        <SelectItem value="测试">测试</SelectItem>
-                        <SelectItem value="文档">文档</SelectItem>
-                        <SelectItem value="调研">调研</SelectItem>
-                        <SelectItem value="运营">运营</SelectItem>
-                        <SelectItem value="其他">其他</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
+      {/* 编辑任务对话框 */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">编辑任务</DialogTitle>
+          </DialogHeader>
+          {editingTask && (
+            <form onSubmit={handleEditTask} className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  <Label htmlFor="edit-description" className="text-sm font-semibold text-gray-700">任务描述 *</Label>
-                  <Textarea
-                    id="edit-description"
-                    value={editingTask.description}
-                    onChange={(e) => setEditingTask({...editingTask, description: e.target.value})}
-                    rows={6}
-                    className="text-base"
+                  <Label htmlFor="edit-title" className="text-sm font-semibold text-gray-700">任务标题 *</Label>
+                  <Input
+                    id="edit-title"
+                    value={editingTask.title}
+                    onChange={(e) => setEditingTask({...editingTask, title: e.target.value})}
+                    className="h-12 text-lg"
                     required
                   />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="edit-start_date" className="text-sm font-semibold text-gray-700">开始日期 *</Label>
-                    <Input
-                      id="edit-start_date"
-                      type="date"
-                      value={editingTask.start_date}
-                      onChange={(e) => setEditingTask({...editingTask, start_date: e.target.value})}
-                      className="h-12 text-lg"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <Label htmlFor="edit-end_date" className="text-sm font-semibold text-gray-700">截止日期 *</Label>
-                    <Input
-                      id="edit-end_date"
-                      type="date"
-                      value={editingTask.end_date}
-                      onChange={(e) => setEditingTask({...editingTask, end_date: e.target.value})}
-                      className="h-12 text-lg"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-3">
-                    <Label htmlFor="edit-max_points" className="text-sm font-semibold text-gray-700">积分奖励 *</Label>
-                    <Input
-                      id="edit-max_points"
-                      type="number"
-                      value={editingTask.max_points}
-                      onChange={(e) => setEditingTask({...editingTask, max_points: e.target.value})}
-                      min="1"
-                      className="h-12 text-lg"
-                      required
-                    />
-                  </div>
+                <div className="space-y-3">
+                  <Label htmlFor="edit-category" className="text-sm font-semibold text-gray-700">任务分类</Label>
+                  <Select value={editingTask.category} onValueChange={(value) => setEditingTask({...editingTask, category: value})}>
+                    <SelectTrigger className="h-12 text-lg">
+                      <SelectValue placeholder="选择任务分类" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="设计">设计</SelectItem>
+                      <SelectItem value="开发">开发</SelectItem>
+                      <SelectItem value="测试">测试</SelectItem>
+                      <SelectItem value="文档">文档</SelectItem>
+                      <SelectItem value="调研">调研</SelectItem>
+                      <SelectItem value="运营">运营</SelectItem>
+                      <SelectItem value="其他">其他</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+              </div>
 
+              <div className="space-y-3">
+                <Label htmlFor="edit-description" className="text-sm font-semibold text-gray-700">任务描述 *</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editingTask.description}
+                  onChange={(e) => setEditingTask({...editingTask, description: e.target.value})}
+                  rows={6}
+                  className="text-base"
+                  required
+                />
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="edit-start_date" className="text-sm font-semibold text-gray-700">开始日期 *</Label>
+                  <Input
+                    id="edit-start_date"
+                    type="date"
+                    value={editingTask.start_date}
+                    onChange={(e) => setEditingTask({...editingTask, start_date: e.target.value})}
+                    className="h-12 text-lg"
+                    required
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="edit-end_date" className="text-sm font-semibold text-gray-700">截止日期 *</Label>
+                  <Input
+                    id="edit-end_date"
+                    type="date"
+                    value={editingTask.end_date}
+                    onChange={(e) => setEditingTask({...editingTask, end_date: e.target.value})}
+                    className="h-12 text-lg"
+                    required
+                  />
+                </div>
+                <div className="space-y-3">
+                  <Label htmlFor="edit-max_points" className="text-sm font-semibold text-gray-700">积分奖励 *</Label>
+                  <Input
+                    id="edit-max_points"
+                    type="number"
+                    value={editingTask.max_points}
+                    onChange={(e) => setEditingTask({...editingTask, max_points: e.target.value})}
+                    min="1"
+                    className="h-12 text-lg"
+                    required
+                  />
+                </div>
+              </div>
 
-                <DialogFooter className="pt-6">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setIsEditDialogOpen(false)}
-                    className="px-8 py-3 text-lg"
-                  >
-                    取消
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    disabled={submitting}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold"
-                  >
-                    {submitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                        保存中...
-                      </>
-                    ) : (
-                      '保存更改'
-                    )}
-                  </Button>
-                </DialogFooter>
-              </form>
-            )}
-          </DialogContent>
-        </Dialog>
-      </div>
+              <DialogFooter className="pt-6">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setIsEditDialogOpen(false)}
+                  className="px-8 py-3 text-lg"
+                >
+                  取消
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={submitting}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold"
+                >
+                  {submitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      更新中...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="mr-2 h-5 w-5" />
+                      更新任务
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

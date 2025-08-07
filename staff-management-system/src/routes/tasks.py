@@ -102,7 +102,13 @@ def create_task():
         if end_date < start_date:
             return jsonify({'error': '结束日期不能早于开始日期'}), 400
         
-        if data['max_points'] <= 0:
+        # 确保积分是整数类型
+        try:
+            max_points = int(data['max_points'])
+        except (ValueError, TypeError):
+            return jsonify({'error': '积分必须是有效的数字'}), 400
+        
+        if max_points <= 0:
             return jsonify({'error': '积分必须大于0'}), 400
         
         user_id = get_jwt_identity()
@@ -122,7 +128,7 @@ def create_task():
             publisher_name=data['publisher_name'],
             start_date=start_date,
             end_date=end_date,
-            max_points=data['max_points'],
+            max_points=max_points,
             created_by=user_id_int
         )
         

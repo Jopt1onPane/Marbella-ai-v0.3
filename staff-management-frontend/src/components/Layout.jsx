@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,9 +27,16 @@ import {
   Target
 } from 'lucide-react';
 import { getUser, isAdmin, logout } from '@/lib/auth';
+import { tasksAPI, pointsAPI, userAPI } from '@/lib/api';
 
 const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats, setStats] = useState({
+    currentPoints: 0,
+    totalTasks: 0,
+    monthlyTrend: 0
+  });
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const user = getUser();
@@ -39,6 +46,48 @@ const Layout = ({ children }) => {
     logout();
     navigate('/login');
   };
+
+  // 获取统计数据
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        
+        if (isAdminUser) {
+          // 管理员获取所有统计数据
+          const [tasksResponse, userStatsResponse] = await Promise.all([
+            tasksAPI.getTasks(),
+            userAPI.getUserStats()
+          ]);
+          
+          setStats({
+            currentPoints: 0, // 管理员不显示个人积分
+            totalTasks: tasksResponse.data.tasks?.length || 0,
+            monthlyTrend: userStatsResponse.data.total_users * 100 // 简单估算
+          });
+        } else {
+          // 普通用户获取个人统计数据
+          const [tasksResponse, pointsResponse] = await Promise.all([
+            tasksAPI.getTasks({ assigned_to_me: true }),
+            pointsAPI.getMyPoints()
+          ]);
+          
+          setStats({
+            currentPoints: pointsResponse.data.total_points || 0,
+            totalTasks: tasksResponse.data.tasks?.length || 0,
+            monthlyTrend: (pointsResponse.data.total_points || 0) * 2.5 // 简单估算月收入
+          });
+        }
+      } catch (error) {
+        console.error('获取统计数据失败:', error);
+        // 保持默认值
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [isAdminUser]);
 
   const navigation = isAdminUser
     ? [
@@ -200,14 +249,20 @@ const Layout = ({ children }) => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
                     <Award className="h-5 w-5 text-blue-600 mr-2" />
-                    <span className="text-sm font-medium text-blue-900">当前积分</span>
+                    <span className="text-sm font-medium text-blue-900">
+                      {isAdminUser ? '系统积分' : '当前积分'}
+                    </span>
                   </div>
                   <Badge variant="outline" className="text-blue-600 border-blue-300">
-                    活跃
+                    {loading ? '加载中' : '活跃'}
                   </Badge>
                 </div>
-                <div className="text-2xl font-bold text-blue-600 mb-1">150</div>
-                <div className="text-xs text-blue-700">预估价值: ¥375</div>
+                <div className="text-2xl font-bold text-blue-600 mb-1">
+                  {loading ? '...' : stats.currentPoints}
+                </div>
+                <div className="text-xs text-blue-700">
+                  预估价值: ¥{loading ? '...' : (stats.currentPoints * 2.5).toFixed(0)}
+                </div>
               </div>
 
               {/* 任务统计 */}
@@ -215,14 +270,20 @@ const Layout = ({ children }) => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
                     <Target className="h-5 w-5 text-green-600 mr-2" />
-                    <span className="text-sm font-medium text-green-900">总任务数</span>
+                    <span className="text-sm font-medium text-green-900">
+                      {isAdminUser ? '总任务数' : '我的任务'}
+                    </span>
                   </div>
                   <Badge variant="outline" className="text-green-600 border-green-300">
-                    进行中
+                    {loading ? '加载中' : '进行中'}
                   </Badge>
                 </div>
-                <div className="text-2xl font-bold text-green-600 mb-1">0</div>
-                <div className="text-xs text-green-700">本月完成任务</div>
+                <div className="text-2xl font-bold text-green-600 mb-1">
+                  {loading ? '...' : stats.totalTasks}
+                </div>
+                <div className="text-xs text-green-700">
+                  {isAdminUser ? '系统任务总数' : '本月完成任务'}
+                </div>
               </div>
 
               {/* 趋势统计 */}
@@ -230,14 +291,20 @@ const Layout = ({ children }) => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
                     <TrendingUp className="h-5 w-5 text-purple-600 mr-2" />
-                    <span className="text-sm font-medium text-purple-900">本月趋势</span>
+                    <span className="text-sm font-medium text-purple-900">
+                      {isAdminUser ? '用户统计' : '本月趋势'}
+                    </span>
                   </div>
                   <Badge variant="outline" className="text-purple-600 border-purple-300">
-                    +12%
+                    {loading ? '...' : (isAdminUser ? '活跃' : '+12%')}
                   </Badge>
                 </div>
-                <div className="text-2xl font-bold text-purple-600 mb-1">¥2,450</div>
-                <div className="text-xs text-purple-700">预计月收入</div>
+                <div className="text-2xl font-bold text-purple-600 mb-1">
+                  {loading ? '...' : (isAdminUser ? stats.monthlyTrend : `¥${stats.monthlyTrend.toFixed(0)}`)}
+                </div>
+                <div className="text-xs text-purple-700">
+                  {isAdminUser ? '注册用户总数' : '预计月收入'}
+                </div>
               </div>
             </div>
           </div>
