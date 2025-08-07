@@ -25,7 +25,8 @@ import {
   Bell,
   Search,
   TrendingUp,
-  Target
+  Target,
+  Calendar
 } from 'lucide-react';
 import { getUser, isAdmin, logout } from '@/lib/auth';
 import { tasksAPI, pointsAPI, userAPI, notificationsAPI } from '@/lib/api';

@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DraggableDialog, DraggableDialogContent, DraggableDialogDescription, DraggableDialogHeader, DraggableDialogTitle } from '@/components/ui/draggable-dialog';
 import { 
   Calendar, 
   Clock, 
@@ -340,11 +341,11 @@ const MyTasks = () => {
         </div>
 
         {/* 提交任务对话框 */}
-        <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold">提交任务</DialogTitle>
-            </DialogHeader>
+        <DraggableDialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
+          <DraggableDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DraggableDialogHeader>
+              <DraggableDialogTitle className="text-2xl font-bold">提交任务</DraggableDialogTitle>
+            </DraggableDialogHeader>
             {selectedTask && (
               <div className="space-y-6">
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -438,8 +439,8 @@ const MyTasks = () => {
                 </div>
               </div>
             )}
-          </DialogContent>
-        </Dialog>
+          </DraggableDialogContent>
+        </DraggableDialog>
       </div>
     </div>
   );
