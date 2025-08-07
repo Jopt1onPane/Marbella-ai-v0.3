@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory
 from flask_jwt_extended import jwt_required
 import os
 import uuid
@@ -64,4 +64,24 @@ def uploaded_file(filename):
         return send_from_directory(upload_dir, filename)
     except Exception as e:
         return jsonify({'error': '文件不存在'}), 404
+
+@upload_bp.route('/upload/download/<filename>')
+@jwt_required()
+def download_file(filename):
+    """提供文件下载服务（需要认证）"""
+    try:
+        upload_dir = os.path.join(os.path.dirname(__file__), '..', 'uploads')
+        file_path = os.path.join(upload_dir, filename)
+        
+        if not os.path.exists(file_path):
+            return jsonify({'error': '文件不存在'}), 404
+        
+        return send_from_directory(
+            upload_dir, 
+            filename, 
+            as_attachment=True,
+            download_name=filename
+        )
+    except Exception as e:
+        return jsonify({'error': f'文件下载失败: {str(e)}'}), 500
 

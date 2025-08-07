@@ -240,7 +240,7 @@ const AdminMonthly = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="total_profit">本月总利润 (元)</Label>
+                <Label htmlFor="total_profit">本月总利润 ($)</Label>
                 <Input
                   id="total_profit"
                   type="number"
@@ -319,7 +319,7 @@ const AdminMonthly = () => {
                 <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                   <span className="text-blue-800 font-medium">总利润</span>
                   <span className="text-blue-900 font-bold">
-                    ¥{monthlyData.total_profit ? parseFloat(monthlyData.total_profit).toLocaleString() : '0'}
+                    ${monthlyData.total_profit ? parseFloat(monthlyData.total_profit).toLocaleString() : '0'}
                   </span>
                 </div>
 
@@ -331,7 +331,7 @@ const AdminMonthly = () => {
                 <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
                   <span className="text-purple-800 font-medium">分配金额</span>
                   <span className="text-purple-900 font-bold">
-                    ¥{monthlyData.total_amount_distributed.toLocaleString()}
+                    ${monthlyData.total_amount_distributed.toLocaleString()}
                   </span>
                 </div>
 
@@ -343,7 +343,7 @@ const AdminMonthly = () => {
                 <div className="flex justify-between items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border-2 border-orange-200">
                   <span className="text-orange-800 font-bold">每积分价值</span>
                   <span className="text-orange-900 font-bold text-xl">
-                    ¥{monthlyData.point_value.toFixed(2)}
+                    ${monthlyData.point_value.toFixed(2)}
                   </span>
                 </div>
               </div>

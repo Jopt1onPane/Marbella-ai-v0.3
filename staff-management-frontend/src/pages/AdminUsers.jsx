@@ -94,13 +94,20 @@ const AdminUsers = () => {
     return <Badge className={color}>{label}</Badge>;
   };
 
-  const getStatusBadge = (status) => {
-    const config = {
-      active: { label: '活跃', color: 'bg-green-100 text-green-800' },
-      inactive: { label: '非活跃', color: 'bg-gray-100 text-gray-800' }
-    };
-    const { label, color } = config[status] || config.active;
-    return <Badge className={color}>{label}</Badge>;
+  const getStatusBadge = (lastLogin) => {
+    if (!lastLogin) {
+      return <Badge className="bg-gray-100 text-gray-800">从未登录</Badge>;
+    }
+    
+    const lastLoginDate = new Date(lastLogin);
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    
+    if (lastLoginDate > threeDaysAgo) {
+      return <Badge className="bg-green-100 text-green-800">活跃</Badge>;
+    } else {
+      return <Badge className="bg-gray-100 text-gray-800">不活跃</Badge>;
+    }
   };
 
   const formatDate = (dateString) => {
@@ -303,12 +310,7 @@ const AdminUsers = () => {
                         </p>
                         <p className="text-sm text-purple-800">预估收入</p>
                       </div>
-                      <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                        <p className="text-2xl font-bold text-yellow-600">
-                          {user.monthly_stats?.success_rate || 0}%
-                        </p>
-                        <p className="text-sm text-yellow-800">成功率</p>
-                      </div>
+
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
@@ -339,10 +341,7 @@ const AdminUsers = () => {
                       <Eye className="h-4 w-4 mr-2" />
                       查看详情
                     </Button>
-                    <Button variant="outline" className="w-full">
-                      <Edit className="h-4 w-4 mr-2" />
-                      编辑用户
-                    </Button>
+
                   </div>
                 </div>
               </CardContent>
@@ -389,7 +388,7 @@ const AdminUsers = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">状态:</span>
-                      {getStatusBadge(selectedUser.status)}
+                      {getStatusBadge(selectedUser.last_login)}
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">注册时间:</span>

@@ -297,70 +297,9 @@ const Layout = ({ children }) => {
               })}
             </nav>
 
-            {/* 底部统计信息 */}
-            <div className="p-6 border-t border-gray-200 space-y-4">
-              {/* 积分统计 */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <Award className="h-5 w-5 text-blue-600 mr-2" />
-                    <span className="text-sm font-medium text-blue-900">
-                      {isAdminUser ? '系统积分' : '当前积分'}
-                    </span>
-                  </div>
-                  <Badge variant="outline" className="text-blue-600 border-blue-300">
-                    {loading ? '加载中' : '活跃'}
-                  </Badge>
-                </div>
-                <div className="text-2xl font-bold text-blue-600 mb-1">
-                  {loading ? '...' : stats.currentPoints}
-                </div>
-                <div className="text-xs text-blue-700">
-                  预估价值: ¥{loading ? '...' : (stats.currentPoints * 2.5).toFixed(0)}
-                </div>
-              </div>
-
-              {/* 任务统计 */}
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <Target className="h-5 w-5 text-green-600 mr-2" />
-                    <span className="text-sm font-medium text-green-900">
-                      {isAdminUser ? '总任务数' : '我的任务'}
-                    </span>
-                  </div>
-                  <Badge variant="outline" className="text-green-600 border-green-300">
-                    {loading ? '加载中' : '进行中'}
-                  </Badge>
-                </div>
-                <div className="text-2xl font-bold text-green-600 mb-1">
-                  {loading ? '...' : stats.totalTasks}
-                </div>
-                <div className="text-xs text-green-700">
-                  {isAdminUser ? '系统任务总数' : '本月完成任务'}
-                </div>
-              </div>
-
-              {/* 趋势统计 */}
-              <div className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl p-4 border border-purple-200">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center">
-                    <TrendingUp className="h-5 w-5 text-purple-600 mr-2" />
-                    <span className="text-sm font-medium text-purple-900">
-                      {isAdminUser ? '用户统计' : '本月趋势'}
-                    </span>
-                  </div>
-                  <Badge variant="outline" className="text-purple-600 border-purple-300">
-                    {loading ? '...' : (isAdminUser ? '活跃' : '+12%')}
-                  </Badge>
-                </div>
-                <div className="text-2xl font-bold text-purple-600 mb-1">
-                  {loading ? '...' : (isAdminUser ? stats.monthlyTrend : `¥${stats.monthlyTrend.toFixed(0)}`)}
-                </div>
-                <div className="text-xs text-purple-700">
-                  {isAdminUser ? '注册用户总数' : '预计月收入'}
-                </div>
-              </div>
+            {/* 底部留白 */}
+            <div className="p-6 border-t border-gray-200">
+              {/* 暂时留白 */}
             </div>
           </div>
         </aside>

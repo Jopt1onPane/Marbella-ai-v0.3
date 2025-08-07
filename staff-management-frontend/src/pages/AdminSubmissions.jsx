@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { CenteredDialog, CenteredDialogContent, CenteredDialogDescription, CenteredDialogFooter, CenteredDialogHeader, CenteredDialogTitle } from '@/components/ui/centered-dialog';
+import { DraggableDialog, DraggableDialogContent, DraggableDialogDescription, DraggableDialogFooter, DraggableDialogHeader, DraggableDialogTitle } from '@/components/ui/draggable-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   CheckCircle, 
@@ -139,6 +139,34 @@ const AdminSubmissions = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleDownloadFile = (file) => {
+    try {
+      // 构建下载URL
+      const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://staff-management-backend-gzyj.onrender.com';
+      const downloadURL = `${baseURL}/api/upload/download/${file.filename || file.path}`;
+      
+      // 创建下载链接
+      const link = document.createElement('a');
+      link.href = downloadURL;
+      link.download = file.name || file.filename || 'download';
+      link.target = '_blank';
+      
+      // 添加认证头
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        link.setAttribute('data-token', token);
+      }
+      
+      // 触发下载
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('下载文件失败:', error);
+      alert('下载文件失败，请重试');
+    }
   };
 
   if (loading) {
@@ -422,16 +450,16 @@ const AdminSubmissions = () => {
       </div>
 
       {/* 审核对话框 */}
-      <CenteredDialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
-        <CenteredDialogContent className="max-w-2xl">
-          <CenteredDialogHeader>
-            <CenteredDialogTitle>
+      <DraggableDialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+        <DraggableDialogContent className="max-w-2xl">
+          <DraggableDialogHeader>
+            <DraggableDialogTitle>
               {selectedSubmission?.review_status === 'pending' ? '审核提交' : '查看审核详情'}
-            </CenteredDialogTitle>
-            <CenteredDialogDescription>
+            </DraggableDialogTitle>
+            <DraggableDialogDescription>
               任务: {selectedSubmission?.task_title} | 提交人: {selectedSubmission?.user_name}
-            </CenteredDialogDescription>
-          </CenteredDialogHeader>
+            </DraggableDialogDescription>
+          </DraggableDialogHeader>
           
           {selectedSubmission && (
             <form onSubmit={handleReviewSubmission} className="space-y-6">
@@ -451,12 +479,21 @@ const AdminSubmissions = () => {
                     <div className="mt-1 space-y-2">
                       {selectedSubmission.files.map((file, index) => (
                         <div key={index} className="flex items-center p-2 bg-gray-50 rounded-lg border">
-                          {getFileIcon(file.type)}
+                          {getFileIcon(file.type || 'document')}
                           <div className="ml-2 flex-1">
-                            <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                            <p className="text-xs text-gray-500">{file.size}</p>
+                            <p className="text-sm font-medium text-gray-900">
+                              {file.name || file.filename || `文件${index + 1}`}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {file.size || '未知大小'}
+                            </p>
                           </div>
-                          <Button type="button" variant="ghost" size="sm">
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleDownloadFile(file)}
+                          >
                             <Download className="h-4 w-4" />
                           </Button>
                         </div>
@@ -513,7 +550,7 @@ const AdminSubmissions = () => {
                 />
               </div>
               
-              <CenteredDialogFooter>
+              <DraggableDialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsReviewDialogOpen(false)}>
                   {selectedSubmission.review_status === 'pending' ? '取消' : '关闭'}
                 </Button>
@@ -522,11 +559,11 @@ const AdminSubmissions = () => {
                     {submitting ? '提交中...' : '提交审核'}
                   </Button>
                 )}
-              </CenteredDialogFooter>
+              </DraggableDialogFooter>
             </form>
           )}
-        </CenteredDialogContent>
-      </CenteredDialog>
+        </DraggableDialogContent>
+      </DraggableDialog>
     </div>
   );
 };
