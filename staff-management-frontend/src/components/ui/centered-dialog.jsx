@@ -22,9 +22,13 @@ const CenteredDialogOverlay = React.forwardRef(({ className, ...props }, ref) =>
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
+    style={{
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(4px)'
+    }}
     {...props}
   />
 ))
@@ -45,7 +49,10 @@ const CenteredDialogContent = React.forwardRef(({ className, children, ...props 
         left: '50%',
         transform: 'translate(-50%, -50%)',
         maxHeight: '90vh',
-        overflowY: 'auto'
+        overflowY: 'auto',
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
       }}
       {...props}
     >

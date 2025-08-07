@@ -327,6 +327,17 @@ def delete_task(task_id):
         if task.status in ['assigned', 'submitted']:
             return jsonify({'error': '无法删除已分配或已提交的任务'}), 400
         
+        # 先删除相关的提交记录
+        submissions = TaskSubmission.query.filter_by(task_id=task_id).all()
+        for submission in submissions:
+            db.session.delete(submission)
+        
+        # 删除相关的积分记录
+        point_records = PointRecord.query.filter_by(task_id=task_id).all()
+        for record in point_records:
+            db.session.delete(record)
+        
+        # 最后删除任务
         db.session.delete(task)
         db.session.commit()
         
