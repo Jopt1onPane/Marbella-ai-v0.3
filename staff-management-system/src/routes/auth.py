@@ -86,7 +86,17 @@ def test_token():
         jwt_data = get_jwt()
         print(f"🔍 调试: 完整JWT数据: {jwt_data}")
         
-        user = User.query.get(user_id)
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                print(f"❌ 调试: 无法转换用户ID为整数: {user_id}")
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+        
+        user = User.query.get(user_id_int)
         
         if not user:
             print(f"❌ 调试: 找不到用户 ID: {user_id}")
@@ -136,7 +146,7 @@ def debug_jwt():
         from datetime import timezone
         now = datetime.now(timezone.utc)
         payload = {
-            'sub': user.id,
+            'sub': str(user.id),  # 确保subject是字符串
             'iat': now,
             'exp': now + timedelta(hours=24),
             'type': 'access',

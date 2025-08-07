@@ -12,13 +12,23 @@ points_bp = Blueprint('points', __name__)
 def get_my_points():
     """获取当前用户的积分"""
     try:
-        user_id = get_jwt_identity()
-        print(f"🔍 调试: 获取我的积分，用户ID: {user_id}")
-        
+                user_id = get_jwt_identity()
+        print(f"🔍 调试: 获取我的积分，用户ID: {user_id}, 类型: {type(user_id)}")
+
         if not user_id:
             return jsonify({'error': '无效的用户认证'}), 401
-            
-        user = User.query.get(user_id)
+
+        # 确保用户ID是整数类型用于数据库查询
+        if isinstance(user_id, str):
+            try:
+                user_id_int = int(user_id)
+            except ValueError:
+                print(f"❌ 调试: 无法转换用户ID为整数: {user_id}")
+                return jsonify({'error': '无效的用户ID格式'}), 400
+        else:
+            user_id_int = user_id
+
+        user = User.query.get(user_id_int)
         if not user:
             return jsonify({'error': '用户不存在'}), 404
         

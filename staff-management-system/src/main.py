@@ -31,6 +31,8 @@ print(f"🔍 调试: SECRET_KEY = {app.config['SECRET_KEY'][:10]}...")
 print(f"🔍 调试: JWT_SECRET_KEY = {app.config['JWT_SECRET_KEY'][:10]}...")
 print(f"🔍 调试: JWT_ALGORITHM = {app.config['JWT_ALGORITHM']}")
 print(f"🔍 调试: JWT_DECODE_ALGORITHMS = {app.config['JWT_DECODE_ALGORITHMS']}")
+print(f"🔍 调试: JWT_IDENTITY_CLAIM = {app.config['JWT_IDENTITY_CLAIM']}")
+print(f"🔍 调试: JWT配置完成，user_identity_loader已设置")
 
 # 数据库配置
 DATABASE_URL = os.getenv('DATABASE_URL')
@@ -70,11 +72,11 @@ jwt = JWTManager(app)
 # JWT identity loader - 确保正确处理用户ID
 @jwt.user_identity_loader
 def user_identity_lookup(user):
-    """将用户对象转换为JWT identity"""
+    """将用户对象转换为JWT identity - 必须返回字符串"""
     if isinstance(user, int):
-        return user  # 如果已经是整数ID，直接返回
+        return str(user)  # 整数ID转换为字符串
     elif hasattr(user, 'id'):
-        return user.id  # 如果是用户对象，返回ID
+        return str(user.id)  # 用户对象ID转换为字符串
     else:
         return str(user)  # 其他情况转换为字符串
 
