@@ -100,6 +100,9 @@ const AdminTasks = () => {
       
       // 通知Layout组件刷新统计数据
       window.dispatchEvent(new CustomEvent('refreshStats'));
+      
+      // 通知其他组件任务已创建
+      window.dispatchEvent(new CustomEvent('taskCreated', { detail: { task: response.data.task } }));
     } catch (err) {
       console.error('创建任务失败:', err);
       setError(err.response?.data?.error || '创建任务失败，请重试');
@@ -143,6 +146,9 @@ const AdminTasks = () => {
       
       // 通知Layout组件刷新统计数据
       window.dispatchEvent(new CustomEvent('refreshStats'));
+      
+      // 通知其他组件任务已删除
+      window.dispatchEvent(new CustomEvent('taskDeleted', { detail: { taskId } }));
     } catch (err) {
       setError(err.response?.data?.error || '删除任务失败，请重试');
     }

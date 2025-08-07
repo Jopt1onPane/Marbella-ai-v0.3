@@ -40,7 +40,30 @@ const MyTasks = () => {
 
   useEffect(() => {
     fetchMyTasks();
-  }, []);
+    
+    // 监听任务删除事件
+    const handleTaskDeleted = (event) => {
+      const { taskId } = event.detail;
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+    };
+    
+    // 监听任务创建事件
+    const handleTaskCreated = (event) => {
+      const { task } = event.detail;
+      // 如果新任务分配给了当前用户，添加到列表中
+      if (task.assigned_to === user?.id) {
+        setTasks(prevTasks => [...prevTasks, task]);
+      }
+    };
+    
+    window.addEventListener('taskDeleted', handleTaskDeleted);
+    window.addEventListener('taskCreated', handleTaskCreated);
+    
+    return () => {
+      window.removeEventListener('taskDeleted', handleTaskDeleted);
+      window.removeEventListener('taskCreated', handleTaskCreated);
+    };
+  }, [user?.id]);
 
   const fetchMyTasks = async () => {
     try {

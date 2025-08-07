@@ -323,13 +323,20 @@ def delete_task(task_id):
         if not task:
             return jsonify({'error': '任务不存在'}), 404
         
-        # 检查任务是否可以删除
-        if task.status in ['assigned', 'submitted']:
-            return jsonify({'error': '无法删除已分配或已提交的任务'}), 400
+        # 管理员可以删除任何任务，包括已完成的
+        # 先删除相关的通知记录
+        from src.models.user import Notification
+        notifications = Notification.query.filter_by(related_task_id=task_id).all()
+        for notification in notifications:
+            db.session.delete(notification)
         
-        # 先删除相关的提交记录
+        # 删除相关的提交记录
         submissions = TaskSubmission.query.filter_by(task_id=task_id).all()
         for submission in submissions:
+            # 删除与提交相关的通知
+            submission_notifications = Notification.query.filter_by(related_submission_id=submission.id).all()
+            for notification in submission_notifications:
+                db.session.delete(notification)
             db.session.delete(submission)
         
         # 删除相关的积分记录

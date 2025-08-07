@@ -113,6 +113,17 @@ const Dashboard = () => {
     };
 
     loadStats();
+    
+    // 监听任务删除事件，重新加载统计数据
+    const handleTaskDeleted = () => {
+      loadStats();
+    };
+    
+    window.addEventListener('taskDeleted', handleTaskDeleted);
+    
+    return () => {
+      window.removeEventListener('taskDeleted', handleTaskDeleted);
+    };
   }, [isAdminUser]);
 
   const StatCard = ({ title, value, description, icon: Icon, color = "blue" }) => (
