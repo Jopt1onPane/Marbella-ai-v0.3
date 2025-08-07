@@ -24,6 +24,7 @@ import {
   Eye,
   MessageSquare
 } from 'lucide-react';
+import { submissionsAPI } from '@/lib/api';
 
 const AdminSubmissions = () => {
   const [submissions, setSubmissions] = useState([]);
@@ -42,12 +43,22 @@ const AdminSubmissions = () => {
 
   // 获取提交数据
   useEffect(() => {
-    setLoading(true);
-    // TODO: 从API获取真实提交数据
-    setTimeout(() => {
-      setSubmissions([]); // 初始为空，等待真实数据
-      setLoading(false);
-    }, 1000);
+    const fetchSubmissions = async () => {
+      try {
+        setLoading(true);
+        const response = await submissionsAPI.getSubmissions();
+        setSubmissions(response.data.submissions || []);
+        setError('');
+      } catch (err) {
+        console.error('获取提交列表失败:', err);
+        setError('获取提交列表失败，请刷新页面重试');
+        setSubmissions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubmissions();
   }, []);
 
   const handleReviewSubmission = async (e) => {
@@ -55,16 +66,16 @@ const AdminSubmissions = () => {
     setSubmitting(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await submissionsAPI.reviewSubmission(selectedSubmission.id, {
+        review_status: reviewData.status,
+        awarded_points: parseInt(reviewData.awarded_points) || 0,
+        review_comments: reviewData.feedback
+      });
       
+      // 更新本地状态
       setSubmissions(submissions.map(sub => 
         sub.id === selectedSubmission.id 
-          ? { 
-              ...sub, 
-              status: reviewData.status,
-              awarded_points: reviewData.status === 'approved' ? parseInt(reviewData.awarded_points) : 0,
-              feedback: reviewData.feedback
-            }
+          ? response.data.submission
           : sub
       ));
       
@@ -77,7 +88,8 @@ const AdminSubmissions = () => {
       });
       setError('');
     } catch (err) {
-      setError('审核失败，请重试');
+      console.error('审核失败:', err);
+      setError(err.response?.data?.error || '审核失败，请重试');
     } finally {
       setSubmitting(false);
     }

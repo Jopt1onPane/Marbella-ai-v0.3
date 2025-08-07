@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,7 +28,7 @@ import {
   Target
 } from 'lucide-react';
 import { getUser, isAdmin, logout } from '@/lib/auth';
-import { tasksAPI, pointsAPI, userAPI } from '@/lib/api';
+import { tasksAPI, pointsAPI, userAPI, notificationsAPI } from '@/lib/api';
 
 const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,6 +38,9 @@ const Layout = ({ children }) => {
     monthlyTrend: 0
   });
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const user = getUser();
@@ -63,7 +67,7 @@ const Layout = ({ children }) => {
           setStats({
             currentPoints: 0, // 管理员不显示个人积分
             totalTasks: tasksResponse.data.tasks?.length || 0,
-            monthlyTrend: userStatsResponse.data.total_users * 100 // 简单估算
+            monthlyTrend: userStatsResponse.data.total_users || 0 // 显示实际用户数量
           });
         } else {
           // 普通用户获取个人统计数据
@@ -87,6 +91,32 @@ const Layout = ({ children }) => {
     };
 
     fetchStats();
+  }, [isAdminUser]);
+
+  // 获取通知数据
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        if (isAdminUser) {
+          // 管理员获取提交通知
+          const [countResponse, notificationsResponse] = await Promise.all([
+            notificationsAPI.getNotificationCount(),
+            notificationsAPI.getNotifications({ unread_only: true })
+          ]);
+          
+          setUnreadCount(countResponse.data.unread_count || 0);
+          setNotifications(notificationsResponse.data.notifications || []);
+        }
+      } catch (error) {
+        console.error('获取通知失败:', error);
+      }
+    };
+
+    fetchNotifications();
+    
+    // 每30秒刷新一次通知
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
   }, [isAdminUser]);
 
   const navigation = isAdminUser
@@ -154,12 +184,21 @@ const Layout = ({ children }) => {
             {/* 右侧 - 通知和用户菜单 */}
             <div className="flex items-center space-x-4">
               {/* 通知按钮 */}
-              <Button variant="ghost" size="sm" className="relative hover:bg-gray-100 transition-colors">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  3
-                </span>
-              </Button>
+              {isAdminUser && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="relative hover:bg-gray-100 transition-colors"
+                  onClick={() => setIsNotificationOpen(true)}
+                >
+                  <Bell className="h-5 w-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </Button>
+              )}
 
               {/* 用户菜单 */}
               <DropdownMenu>
@@ -327,6 +366,75 @@ const Layout = ({ children }) => {
           </div>
         </main>
       </div>
+
+      {/* 通知对话框 */}
+      {isAdminUser && (
+        <Dialog open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">通知中心</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {notifications.length === 0 ? (
+                <div className="text-center py-8">
+                  <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">暂无通知</h3>
+                  <p className="text-gray-500">没有新的通知消息</p>
+                </div>
+              ) : (
+                notifications.map((notification) => (
+                  <div key={notification.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900 mb-1">{notification.title}</h4>
+                        <p className="text-sm text-gray-600 mb-2">{notification.message}</p>
+                        <div className="flex items-center text-xs text-gray-400">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          {new Date(notification.created_at).toLocaleString('zh-CN')}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={async () => {
+                          try {
+                            await notificationsAPI.markAsRead(notification.id);
+                            setNotifications(notifications.filter(n => n.id !== notification.id));
+                            setUnreadCount(Math.max(0, unreadCount - 1));
+                          } catch (error) {
+                            console.error('标记已读失败:', error);
+                          }
+                        }}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        标记已读
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            {notifications.length > 0 && (
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await notificationsAPI.markAllAsRead();
+                      setNotifications([]);
+                      setUnreadCount(0);
+                    } catch (error) {
+                      console.error('标记全部已读失败:', error);
+                    }
+                  }}
+                >
+                  全部标记为已读
+                </Button>
+              </DialogFooter>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

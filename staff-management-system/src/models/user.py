@@ -18,6 +18,7 @@ class User(db.Model):
     assigned_tasks = db.relationship('Task', foreign_keys='Task.assigned_to', backref='assignee', lazy='dynamic')
     submissions = db.relationship('TaskSubmission', backref='user', lazy='dynamic')
     point_records = db.relationship('PointRecord', backref='user', lazy='dynamic')
+    notifications = db.relationship('Notification', backref='user', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -99,6 +100,30 @@ class TaskSubmission(db.Model):
             'user_name': self.user.username if self.user else None
         }
 
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(50), default='info')  # 'info', 'success', 'warning', 'error'
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    related_task_id = db.Column(db.Integer, db.ForeignKey('task.id'))
+    related_submission_id = db.Column(db.Integer, db.ForeignKey('task_submission.id'))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'title': self.title,
+            'message': self.message,
+            'type': self.type,
+            'is_read': self.is_read,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'related_task_id': self.related_task_id,
+            'related_submission_id': self.related_submission_id
+        }
+
 class MonthlySetting(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     year = db.Column(db.Integer, nullable=False)
@@ -140,7 +165,6 @@ class PointRecord(db.Model):
             'points': self.points,
             'type': self.type,
             'description': self.description,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'task_title': self.task.title if self.task else None
+            'created_at': self.created_at.isoformat() if self.created_at else None
         }
 

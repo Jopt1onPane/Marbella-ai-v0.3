@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
 from src.models.user import db, User, Task, TaskSubmission, PointRecord
+from src.routes.notifications import create_submission_notification
 from functools import wraps
 
 submissions_bp = Blueprint('submissions', __name__)

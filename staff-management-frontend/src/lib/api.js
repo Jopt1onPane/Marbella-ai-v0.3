@@ -83,6 +83,15 @@ export const userAPI = {
   deleteUser: (id) => api.delete(`/users/${id}`),
 };
 
+// 通知API
+export const notificationsAPI = {
+  getNotifications: (params) => api.get('/notifications', { params }),
+  getNotificationCount: () => api.get('/notifications/count'),
+  markAsRead: (id) => api.post(`/notifications/${id}/read`),
+  markAllAsRead: () => api.post('/notifications/read-all'),
+  getAdminSubmissionNotifications: () => api.get('/notifications/admin/submissions')
+};
+
 // 积分相关API
 export const pointsAPI = {
   getMyPoints: () => api.get('/points/my'),  // 新增：获取当前用户积分

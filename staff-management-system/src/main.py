@@ -15,6 +15,7 @@ from src.routes.tasks import tasks_bp
 from src.routes.submissions import submissions_bp
 from src.routes.points import points_bp
 from src.routes.upload import upload_bp
+from src.routes.notifications import notifications_bp
 
 app = Flask(__name__)
 
@@ -108,6 +109,7 @@ app.register_blueprint(tasks_bp, url_prefix='/api')
 app.register_blueprint(submissions_bp, url_prefix='/api')
 app.register_blueprint(points_bp, url_prefix='/api')
 app.register_blueprint(upload_bp, url_prefix='/api')
+app.register_blueprint(notifications_bp, url_prefix='/api')
 
 # 数据库初始化
 def init_database():

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, date
 from src.models.user import db, User, Task, TaskSubmission, PointRecord
+from src.routes.notifications import create_submission_notification
 from functools import wraps
 import json
 
@@ -300,6 +301,9 @@ def submit_task(task_id):
         
         task.status = 'submitted'
         db.session.commit()
+        
+        # 创建通知给管理员
+        create_submission_notification(submission)
         
         return jsonify({
             'message': '任务提交成功',
