@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { CenteredDialog, CenteredDialogContent, CenteredDialogDescription, CenteredDialogFooter, CenteredDialogHeader, CenteredDialogTitle } from '@/components/ui/centered-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   CheckCircle, 
@@ -47,6 +48,7 @@ const AdminSubmissions = () => {
       try {
         setLoading(true);
         const response = await submissionsAPI.getSubmissions();
+        console.log('获取到的提交数据:', response.data);
         setSubmissions(response.data.submissions || []);
         setError('');
       } catch (err) {
@@ -378,15 +380,17 @@ const AdminSubmissions = () => {
                     {submission.review_status === 'pending' ? (
                       <Button
                         onClick={() => {
+                          console.log('审核按钮被点击', submission);
                           setSelectedSubmission(submission);
                           setReviewData({
                             status: 'approved',
-                            awarded_points: submission.max_points.toString(),
+                            awarded_points: submission.max_points?.toString() || '0',
                             feedback: ''
                           });
                           setIsReviewDialogOpen(true);
                         }}
-                        className="w-full"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={false}
                       >
                         <CheckCircle className="h-4 w-4 mr-2" />
                         审核
@@ -418,16 +422,16 @@ const AdminSubmissions = () => {
       </div>
 
       {/* 审核对话框 */}
-      <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
+      <CenteredDialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
+        <CenteredDialogContent className="max-w-2xl">
+          <CenteredDialogHeader>
+            <CenteredDialogTitle>
               {selectedSubmission?.review_status === 'pending' ? '审核提交' : '查看审核详情'}
-            </DialogTitle>
-            <DialogDescription>
+            </CenteredDialogTitle>
+            <CenteredDialogDescription>
               任务: {selectedSubmission?.task_title} | 提交人: {selectedSubmission?.user_name}
-            </DialogDescription>
-          </DialogHeader>
+            </CenteredDialogDescription>
+          </CenteredDialogHeader>
           
           {selectedSubmission && (
             <form onSubmit={handleReviewSubmission} className="space-y-6">
@@ -509,7 +513,7 @@ const AdminSubmissions = () => {
                 />
               </div>
               
-              <DialogFooter>
+              <CenteredDialogFooter>
                 <Button type="button" variant="outline" onClick={() => setIsReviewDialogOpen(false)}>
                   {selectedSubmission.review_status === 'pending' ? '取消' : '关闭'}
                 </Button>
@@ -518,11 +522,11 @@ const AdminSubmissions = () => {
                     {submitting ? '提交中...' : '提交审核'}
                   </Button>
                 )}
-              </DialogFooter>
+              </CenteredDialogFooter>
             </form>
           )}
-        </DialogContent>
-      </Dialog>
+        </CenteredDialogContent>
+      </CenteredDialog>
     </div>
   );
 };

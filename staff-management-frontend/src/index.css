@@ -88,6 +88,8 @@
   margin: 0 !important;
   display: flex !important;
   flex-direction: column !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
 }
 
 /* 强制覆盖任何可能的定位样式 */
@@ -95,12 +97,26 @@
   position: relative !important;
 }
 
-/* 确保对话框在视口中心 */
-@media (max-height: 600px) {
-  [data-slot="dialog-content"] {
-    max-height: 90vh !important;
-    overflow-y: auto !important;
-  }
+/* 确保对话框在视口中心 - 更强制的居中 */
+[data-slot="dialog-content"] {
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
+  padding: 24px !important;
+}
+
+/* 覆盖任何可能的top/left设置 */
+[data-slot="dialog-content"][style*="top"] {
+  top: 50% !important;
+}
+
+[data-slot="dialog-content"][style*="left"] {
+  left: 50% !important;
+}
+
+[data-slot="dialog-content"][style*="transform"] {
+  transform: translate(-50%, -50%) !important;
 }
 
 /* 动画效果 */

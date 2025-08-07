@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { CenteredDialog, CenteredDialogContent, CenteredDialogDescription, CenteredDialogFooter, CenteredDialogHeader, CenteredDialogTitle } from '@/components/ui/centered-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Plus, 
@@ -188,17 +189,17 @@ const AdminTasks = () => {
           </div>
           
           <div className="flex items-center gap-4">
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <CenteredDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 border-2 border-blue-500">
                   <Plus className="mr-3 h-5 w-5" />
                   发布新任务
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold">发布新任务</DialogTitle>
-                </DialogHeader>
+              <CenteredDialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <CenteredDialogHeader>
+                  <CenteredDialogTitle className="text-2xl font-bold">发布新任务</CenteredDialogTitle>
+                </CenteredDialogHeader>
                 <form onSubmit={handleCreateTask} className="space-y-6">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="space-y-3">
@@ -282,7 +283,7 @@ const AdminTasks = () => {
                     </div>
                   </div>
 
-                  <DialogFooter className="pt-6">
+                  <CenteredDialogFooter className="pt-6">
                     <Button 
                       type="button" 
                       variant="outline" 
@@ -308,10 +309,10 @@ const AdminTasks = () => {
                         </>
                       )}
                     </Button>
-                  </DialogFooter>
+                  </CenteredDialogFooter>
                 </form>
-              </DialogContent>
-            </Dialog>
+              </CenteredDialogContent>
+            </CenteredDialog>
           </div>
         </div>
 
@@ -513,11 +514,11 @@ const AdminTasks = () => {
       </div>
 
       {/* 编辑任务对话框 */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">编辑任务</DialogTitle>
-          </DialogHeader>
+      <CenteredDialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <CenteredDialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <CenteredDialogHeader>
+            <CenteredDialogTitle className="text-2xl font-bold">编辑任务</CenteredDialogTitle>
+          </CenteredDialogHeader>
           {editingTask && (
             <form onSubmit={handleEditTask} className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -599,7 +600,7 @@ const AdminTasks = () => {
                 </div>
               </div>
 
-              <DialogFooter className="pt-6">
+              <CenteredDialogFooter className="pt-6">
                 <Button 
                   type="button" 
                   variant="outline" 
@@ -625,11 +626,11 @@ const AdminTasks = () => {
                     </>
                   )}
                 </Button>
-              </DialogFooter>
+              </CenteredDialogFooter>
             </form>
           )}
-        </DialogContent>
-      </Dialog>
+        </CenteredDialogContent>
+      </CenteredDialog>
     </div>
   );
 };
